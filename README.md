@@ -7,7 +7,8 @@
 
 
 
-The Rockstar-Galaxies Halo Finder
+# The Rockstar-Galaxies Halo Finder
+
 
 Most code: Copyright (C)2011-2014 Peter Behroozi
 

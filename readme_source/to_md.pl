@@ -34,7 +34,7 @@ while (<>) {
     s/\$//g;
     s/\bM_\{?(\w+)\}?/M$1/g;
     s/\bR_\{?(\w)\}?/R$1/g;
-    s/^\s*(The Rockstar Halo Finder)/# $1\n/;
+    s/^\s*(The Rockstar-Galaxies Halo Finder)/# $1\n/;
     s/^\s+//;
     $_ = "\n" unless length $_;
     my $spaces = 4*((($verbatim>0)?1:0)+(($subsec>0 and !/ ### /)?1:0) + (($subsubsec>0 and !/ #### /)?1:0));
