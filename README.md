@@ -7,10 +7,9 @@
 
 
 
-# The Rockstar Halo Finder
+The Rockstar-Galaxies Halo Finder
 
-
-Most code: Copyright (C)2011-2013 Peter Behroozi
+Most code: Copyright (C)2011-2014 Peter Behroozi
 
 License: GNU GPLv3
 
