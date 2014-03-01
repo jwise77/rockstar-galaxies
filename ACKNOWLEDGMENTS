@@ -1,0 +1,14 @@
+The initial version of Rockstar would not have been possible without the contributions of a very large number of people.  Along with Risa Wechsler and Hao-Yi Wu, the co-authors of the original paper (http://arxiv.org/abs/1110.4372), we would like to thank Anatoly Klypin, Joel Primack, Michael Busha, Houjun Mo, Alexie Leauthaud, Andrey Kravtsov, James Bullock, Alex Knebe, Rachel Reddick, Yu Lu, Oliver Hahn, Matt Becker, Louie Strigari, Jeremy Tinker, Tom Abel, Steven Rieder, Markus Haider, Shea Garrison-Kimmel, Gus Evrard, Marcelo Alvarez, Joanne Cohn, Martin White, Simon White, Manodeep Sinha, and Annika Peters for interesting discussions, helpful suggestions, and testing. We gratefully acknowledge the support of Stuart Marshall and the SLAC computational team, as well as the computational resources at SLAC, NASA, and Teragrid/XSEDE.  I (PSB) and Risa (RHW) received support from NASA HST Theory grant HST-AR-12159.01-A; RHW was also supported by the National Science Foundation under grant NSF AST-0807312.  This work was additionally supported by the U.S. Department of Energy under contract number DE-AC02-76SF00515.
+
+Since the release of the initial public version (v0.96.2), I would also like to acknowledge the following contributors:
+
+*) Matt Turk and Chris Moody: YT support
+*) Greg Stinson: TIPSY support
+*) Mike Warren: >1000 processor support
+*) Matthew Becker: Evolving dark energy support, a>10 support
+*) Oliver Hahn: RAMSES support and bugfixes for Rockstar-Galaxies
+*) Michael Busha: Bug reports
+*) Doug Hellinger: Bug reports
+*) Yao-Yuan Mao: Bug reports
+*) Markus Haider: Bug reports
+*) Lauren Anderson: Lots of helpful testing

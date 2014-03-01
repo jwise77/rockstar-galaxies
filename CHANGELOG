@@ -1,0 +1,104 @@
+v0.99.9 RC3:
+*) Fix to io/io_tipsy.c to support non-XDR TIPSY files.  (Thanks to Robert Thompson for finding!).
+*) Major fix to shape calculations within R_500c: previous versions were effectively not iterating the shape calculation.
+*) Additional experimental pseudo-evolution mass calculations.
+*) Improved simulation data load distribution to reduce network transmissions.
+*) Added EXACT_LL_CALC option for more deterministic (but slower) halo property calculation.  Set to 1 to enable.
+*) Added HDF5 support for GADGET and AREPO (use FILE_FORMAT=AREPO for both), thanks to Dylan Nelson.
+
+
+v0.99.9 RC2 (9/27/13):
+*) Major fix to shape calculations: previous versions had biased iterative calculations of the shape major axis.  (Thanks to Doug Hellinger for finding!).  Shape calculations are now weighted according to the Allgood et al. approach (1/r^2).
+*) Shape calculations are done at two radii (Rvir and R500c by default).  This has resulted in some changes to the output column order.
+*) Applied patch from Matt Turk to let YT calculate arbitrary halo properties.
+*) Minor changes to ART/GADGET input routines to support loading particles from a pipe instead of a file.
+*) Added a STRICT_SO_MASSES mode for calculating SO masses without gravitational unbinding or limits due to the use of FOF for initial group finding.
+*) Fixed crashing issues in BGC2/STRICT_SO_MASSES code (thanks to Matt Becker for finding!).
+*) Fixed a rare issue wherein BGC/SO masses would be set to the mass of a single particle.
+*) Updates to ART code to support new Bolshoi-Planck format.
+*) Speed improvements, especially for halos under 10,000 particles.
+*) Dark energy equation of state now allowed to be changed (code and testing thanks to Matt Becker).  Change W0 and WA in the config file to use.
+*) New script mkpipes.pl to help with making named pipes for use with alternative input formats.
+*) README is now a proper manual generated with LaTeX.
+*) Changes to group-finding algorithm to ignore galaxies without dark matter counterparts.  This will help reduce galaxy fragmentation.
+*) Internal particle structure now includes "type" and "softening" parameters.
+
+
+v0.99.9 RC1 (3/13/2013):
+*) Fixed Rs_Klypin to use bound mass instead of unbound mass for halos when BOUND_PROPS = 1.  (Thanks to Yao-Yuan Mao for finding!).
+*) More efficient memory allocation in tree construction.
+*) New config parameter (RUN_PARALLEL_ON_SUCCESS) which will launch a program from every analysis process after each snapshot is analyzed.  Rockstar will wait for successful completion before continuing.
+*) Fixed segfault in BGC2 output code, as well as a regression that made BGC2 output use twice as much memory as necessary.
+*) Added the INITIAL_METRIC_SCALING parameter to adjust the initial weight given to the velocity-space dispersion.  (Relevant for Chris Moody only).
+
+v0.99.8: (Not publicly released)
+*) Added FORCE_RES_PHYS_MAX configuration parameter to set the maximum physical force resolution---mainly useful for analyzing simulations at a>>1.
+
+v0.99.7: (Not publicly released)
+*) Static code analysis now regular part of release cycle.  (Thanks to both Coverity and to the Clang project).  Two memory leaks (in the TIPSY and BGC2 IO) are now fixed.
+*) Fixed crash due to floating-point roundoff errors in building FOF groups across periodic boundaries.
+*) Added network profiling.  This will help improve processor utilization in future versions.
+*) Rockstar-Galaxies now has *alpha* support for multiple-mass GADGET files.  Use with caution, and please report any problems.
+
+v0.99.6: (Not publicly released).
+*) Fixed an issue with the lightcone origin being shifted unnecessarily (thanks to Michael Busha for finding!).
+*) Code will now automatically increase NUM_WRITERS to FORK_PROCESSORS_PER_MACHINE if the latter is larger.  (Thanks to Marius Cautun for catching).
+*) Parallel output to the same file has been shown to cause problems with many filesystems; catalogs are now written in serial again. (Thanks to Michael Busha for finding).
+*) Unknown configuration variables are now reported to help catch spelling errors.
+*) Updated the merger tree config file script to support scale factors >9.99. (Thanks to Matt Becker for catching!).
+*) Improved memory balance over v0.99.5.
+*) Corrected TIPSY velocity unit conversion.
+
+v0.99.5: (Not publicly released.)
+*) Many new halo parameters calculated: Shape, Central Position/Velocity Offsets, Bullock spin parameter, KE/PE (T/|U|).
+*) Updated particle assignment algorithm to use method based on Vmax instead of Mvir.
+*) Updated concentration calculation which is now based directly on the mass profile.  The Klypin method for calculating the scale radius is available as a separate column.
+*) Updated the Peebles spin parameter calculation to use only the potential from particles within the halo radius.
+*) Multiple mass outputs are now available in a single run.  (Defaults are Mvir, M200b, M200c, and M500c).
+*) New load-balancing scheme which gets rid of the requirement for overlap regions between processors.  This can substantially reduce memory usage for box sizes < 500 Mpc on a side.
+*) Performance improvements in many parts of the code, resulting in a 1.5-2x speedup for many applications.
+*) Consistency improvements in temporal tracking code.
+*) Improved handling of SIGINTs.
+*) Patch from Mike Warren to improve support for running on > 1024 processors (using poll() instead of select()).
+*) Special thanks to Mike Warren for contributing many patches and bugfixes during the development of this release.
+*) Fixed a bug with halos in major mergers accidentally being assigned some of their host halo's particles.
+
+v0.99.1: (Not publicly released.)
+*) Updated velocity calculation to use all particles within 0.1 Rvir.
+*) Updated scale factor -> time conversion code to be more accurate as well as work for scale factors > 1.
+*) Changed temporal tracking code to track innermost 10% of particles in massive halos, instead of having a fixed maximum at 10k particles.
+*) Fixed handling of "\r" in config files.
+*) Made Rockstar ignore SIGINTs from MPI.  (Thanks to Matt Turk for the patch).
+
+v0.99 (3/19/2012):
+*) Updated the unbinding calculation to use physical velocities instead of peculiar velocities.
+*) Improved network layer now supports transparent auto-healing in case of connection failures and better rejection of non-Rockstar connections.
+*) No lower boxsize limit for non-periodic boundary conditions.
+*) A utility for calculating host-subhalo relationships is now included (see README).
+*) Included example source code for reading the particle output formats (see examples/).
+
+v0.98.5 (1/10/2012):
+*) Fixed an important issue with calculating Vrms: previously, it was calculated using all particles associated to the halo, instead of just those within the halo radius R_delta (thanks to Michael Busha for catching this).
+*) Added support for easy restarting of Rockstar if it terminates in the middle of a run for any reason.  (See restart.cfg in README).
+*) Added support for specifying the GADGET halo particle type (if it is not the default, 1).
+*) Support for the undocumented "GADGET_INTERNAL" format was removed.
+*) Added missing support for auto server port when server address is specified.
+
+v0.98 (12/27/2011):
+*) Increased the speed of boundary checks; the particle distribution stage is now more efficient.
+*) Fixed an issue whereby duplicate halos could be output in merger trees; this only appears on certain versions of Linux when there are very few halos per processor (thanks to Markus Haider for finding this!).
+*) Fixed two issues where calculating the position and velocity variance of particle groups would in hang in rare instances (Thanks to Michael Busha for finding the first of these!).
+*) Fixed a mistake in the IO code which prevented TIPSY support from working (Thanks to Michael Busha for catching this!).
+*) Updated the readme to be clearer about how to run Rockstar in master/client mode.
+
+v0.97.1:
+*) Added support for user-configurable load-balancing.
+
+v0.97 (11/1/2011):
+*) Fixed a race condition which was halting execution for snapshots without any halos.
+*) Included config files to run on the Ranger machine at TACC.
+*) Added YT support (from Matt Turk).
+*) Added initial/alpha support for reading TIPSY files (from Greg Stinson).
+
+v0.96.2 (10/20/2011):
+Initial public release

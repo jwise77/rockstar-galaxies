@@ -1,0 +1,29 @@
+#!/bin/bash
+#For a 128 processor run on Ranger.
+#$ -V
+#$ -cwd
+#$ -N rockstar
+#$ -j y 
+#$ -o $JOB_NAME.o$JOB_ID
+#$ -pe 1way 128
+# #$ -q normal
+#$ -q normal
+#$ -l h_rt=3:59:00
+##$ -M your_email@example.com
+#$ -m be
+#$ -A your_account_number
+set -x
+
+scratch=/path/to/your/scratch_space/
+workdir=$scratch/output_dir
+exe=/path/to/rockstar
+
+cd $workdir
+
+echo Entering $(pwd)
+
+rm auto-rockstar.cfg test-output.dat
+$exe -c ranger.cfg >& server.dat &
+perl -e 'sleep 1 while (!(-e "auto-rockstar.cfg"))'
+
+ibrun $exe -c auto-rockstar.cfg

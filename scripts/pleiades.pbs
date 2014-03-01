@@ -1,0 +1,38 @@
+#!/bin/sh
+#PBS -l select=64:ncpus=12:model=wes
+#PBS -l walltime=15:59:00
+#PBS -N tasks
+#PBS -j oe
+#PBS -o output.dat
+
+#Load NASA environment
+source /usr/share/modules/init/bash
+module load mpi-intel/4.0.028
+module load comp/intel/11.0.083_64
+
+#Change to working directory
+cd $PBS_O_WORKDIR
+cd shared/cores
+
+#Remove outputs from previous runs
+rm test_output.dat
+
+#Start the server
+/u/pbehrooz/Rockstar/rockstar -c /u/pbehrooz/pleiades.cfg &> server.dat &
+
+#Copy the auto-rockstar.cfg file to the working directory
+perl -e 'sleep 1 while (!(-e "/nobackup/pbehrooz/halos/auto-rockstar.cfg"))'
+mv /nobackup/pbehrooz/halos/auto-rockstar.cfg .
+
+#Start the intel MPI controller
+mpdboot --file=$PBS_NODEFILE --ncpus=1 --totalnum=`cat $PBS_NODEFILE  | sort -u | wc -l` --ifhn=`head -1 $PBS_NODEFILE`  --rsh=ssh --mpd=`which mpd` --ordered
+
+#Execute the reader processes
+mpiexec -ppn 2 -np 125 /u/pbehrooz/Rockstar/rockstar -c auto-rockstar.cfg >> test_output.dat 2>&1 &
+sleep 20
+
+#Execute the analysis processes
+mpiexec -ppn 12 -np 768 /u/pbehrooz/Rockstar/rockstar -c auto-rockstar.cfg >> test_output.dat 2>&1
+
+#Finish
+mpdallexit
