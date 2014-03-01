@@ -14,10 +14,9 @@
 \fi}
 \global\let\hyper@last\relax 
 \gdef\HyperFirstAtBeginDocument#1{#1}
-\providecommand*\HyPL@Entry[1]{}
-\HyPL@Entry{0<</S/D>>}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
 \@writefile{toc}{\contentsline {section}{\numberline {1}Compiling}{1}{section.1}}
-line {1}Compiling}{1}{section.1}}
 \@writefile{toc}{\contentsline {section}{\numberline {2}Running}{2}{section.2}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Quick start (single snapshot, single CPU)}{2}{subsection.2.1}}
 \@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces \textbf  {Logical Layout of Parallel Processing}: One master process controls multiple reader and writer (worker) processes. The reader processes are responsible for loading data and rearranging it into rectangular volumes according to the number of writers. The writer processes receive data from the readers, analyze it for halos, and write output catalogs to one or more files. \textbf  {Physical Layout}: Every CPU should contain one writer process, since this is where the bulk of the analysis time is spent. The master process consumes very little CPU power, and so can easily be accommodated by the first CPU. The reader processes also consume very little CPU power; however, they require enough memory to load in all the particle data. For this reason, they should be distributed evenly across all the nodes. Rockstar has several configuration parameters to help with launching the right number and the right type of tasks per node; see \S  \ref  {s:parallel_io}.}}{3}{figure.1}}

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2013.5.30)  28 NOV 2013 14:38
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2013.5.30)  1 MAR 2014 09:46
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -862,10 +862,6 @@ Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 652.
 Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 652.
 Package rerunfilecheck Info: File `README.out' has not changed.
 (rerunfilecheck)             Checksum: A21E45EB5E2904BD674D5E67F059BDDE;1551.
-
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 652.
  ) 
 Here is how much of TeX's memory you used:
@@ -884,7 +880,7 @@ e/2013/texmf-dist/fonts/type1/public/cm-super/sftt1200.pfb></usr/local/texlive/
 2013/texmf-dist/fonts/type1/urw/ncntrsbk/uncb8a.pfb></usr/local/texlive/2013/te
 xmf-dist/fonts/type1/urw/ncntrsbk/uncr8a.pfb></usr/local/texlive/2013/texmf-dis
 t/fonts/type1/urw/ncntrsbk/uncri8a.pfb>
-Output written on README.pdf (19 pages, 193174 bytes).
+Output written on README.pdf (19 pages, 193179 bytes).
 PDF statistics:
  264 PDF objects out of 1000 (max. 8388607)
  232 compressed objects within 3 object streams
