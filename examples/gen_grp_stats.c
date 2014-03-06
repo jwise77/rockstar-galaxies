@@ -42,7 +42,7 @@ void check_grp_ids_space(int64_t num_requested) {
   num_grp_ids = num_requested;
 }
 
-void calc_potentials(void) {
+void calc_potentials(double dm_mass) {
   int64_t i,j=0,count=0,last_id=-1;
   for (i=0; i<num_p; i++) {
     if (p[i].hid != last_id) {
@@ -108,9 +108,12 @@ void calc_potentials(void) {
     m[0] /= h0;
     m[1] /= h0;
     m[2] /= h0;
-    fprintf(stats, "%-10"PRId64" %-9"PRId64" %-9"PRId64" %-9"PRId64" %-9"PRId64"    %12e  %10f   %12e     %12e    %12e    %11f %11f  %11f   %9f  %9f  %9f  %9f  %9f  %9f  clean  %-10"PRId64"  no\n",
+
+    char *contam = "clean";
+    if (m[RTYPE_DM] > 1.1*n[RTYPE_DM]*dm_mass) contam = "contam";
+    fprintf(stats, "%-10"PRId64" %-9"PRId64" %-9"PRId64" %-9"PRId64" %-9"PRId64"    %12e  %10f   %12e     %12e    %12e    %11f %11f  %11f   %9f  %9f  %9f  %9f  %9f  %9f  %s  %-10"PRId64"  no\n",
 	    the_h->id, n[0]+n[1]+n[2], n[1], n[2], n[0], m[0]+m[1]+m[2], the_h->r/h0, m[1], m[2], m[0], the_h->vmax, the_h->rvmax/h0, the_h->vrms, the_h->pos[0]/h0, the_h->pos[1]/h0, the_h->pos[2]/h0,
-	    the_h->pos[3], the_h->pos[4], the_h->pos[5], parents[the_h->id]);
+	    the_h->pos[3], the_h->pos[4], the_h->pos[5], contam, parents[the_h->id]);
     /*if (the_h->m>1.3e11) {
       printf("%"PRId64" %"PRId64" %"PRId64"\n", n[0], n[1], n[2]);
       }*/
@@ -132,8 +135,8 @@ int main(int argc, char **argv) {
   char buffer[1024], *end;
   int64_t id, pid;
 
-  if (argc < 2) {
-    printf("Usage: %s out.parents tipsy_file.iord file1.particles ...\n", argv[0]);
+  if (argc < 5) {
+    printf("Usage: %s out.parents tipsy_file.iord highres_dm_mass file1.particles ...\n", argv[0]);
     exit(1);
   }
   
@@ -167,12 +170,13 @@ int main(int argc, char **argv) {
   grp=check_fopen(buffer, "w");
   fprintf(stats, "  Grp      N_tot     N_gas    N_star    N_dark       Mvir(M_sol)   Rvir(kpc)    GasMass(M_sol)   StarMass(M_sol)   DarkMass(M_sol)       V_max    R@V_max     VelDisp         Xc         Yc         Zc         VXc         VYc         VZc   Contam  Satellite?   False?\n");
 
-  for (i=3; i<argc; i++) {
+  double dm_mass = atof(argv[3]);
+  for (i=4; i<argc; i++) {
     num_h = num_p = 0;
     load_full_particles(argv[i], &h, &num_h, &p, &num_p, bounds);
     printf("PARTICLE_MASS: %e\n", PARTICLE_MASS);
     calc_p_start();
-    calc_potentials();
+    calc_potentials(dm_mass);
   }
   fclose(stats);
 

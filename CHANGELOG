@@ -5,7 +5,7 @@ v0.99.9 RC3:
 *) Improved simulation data load distribution to reduce network transmissions.
 *) Added EXACT_LL_CALC option for more deterministic (but slower) halo property calculation.  Set to 1 to enable.
 *) Added HDF5 support for GADGET and AREPO (use FILE_FORMAT=AREPO for both), thanks to Dylan Nelson.
-
+*) Added check for contamination from low-res DM particles to gen_grp_stats.
 
 v0.99.9 RC2 (9/27/13):
 *) Major fix to shape calculations: previous versions had biased iterative calculations of the shape major axis.  (Thanks to Doug Hellinger for finding!).  Shape calculations are now weighted according to the Allgood et al. approach (1/r^2).
