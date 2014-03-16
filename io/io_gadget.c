@@ -225,7 +225,8 @@ void load_particles_gadget2(char *filename, struct particle **p, int64_t *num_p)
   skip=0;
   for (i=0; i<6; i++) {
     int32_t type = RTYPE_STAR;
-    if (i==GADGET_HALO_PARTICLE_TYPE) type = RTYPE_DM;
+    //Include Boundary particles (type=5) as DM
+    if (i==GADGET_HALO_PARTICLE_TYPE || i==5) type = RTYPE_DM;
     else if (i==0) type = RTYPE_GAS;
     for (j=skip; j<skip+header.num_particles[i]; j++) {
       if (header.particle_masses[i]) p[0][*num_p+j].mass = header.particle_masses[i];
