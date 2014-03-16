@@ -116,12 +116,6 @@ void gadget2_extract_header_info(struct gadget_header *header)
 #undef SWAP8
   }
 
-  fprintf(stderr, "[Warning!] Ultra-Hacked version of Rockstar-Galaxies; setting cosmology to h=0.7, Om=0.3.\n");
-  header->omega_0 = 0.3;
-  header->h_0 = 0.7;
-  header->redshift = 0;
-  header->omega_lambda = 0.7;
-
   if (fabs(header->omega_0 + header->omega_lambda - 1.0) > 1e-5) {
     fprintf(stderr, "[Error] Halo Finder Not Currently Configured to Run on Cosmologies with Curvature. (Omega_Matter = %f, Omega_Lambda = %f!)\n", header->omega_0, header->omega_lambda);
     exit(1);
