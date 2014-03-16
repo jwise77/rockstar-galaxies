@@ -218,7 +218,7 @@ void load_particles_gadget2(char *filename, struct particle **p, int64_t *num_p)
     for (i=5; i>=0; i--) {
       if (header.particle_masses[i]) { skip2-=header.num_particles[i]; continue; }
       for (j=0; j<header.num_particles[i]; j++,skip2--,skip--)
-	p[0][skip2].mass = p[0][skip].mass;
+	p[0][*num_p+skip2].mass = p[0][*num_p+skip].mass;
     }
   }
 
@@ -228,13 +228,13 @@ void load_particles_gadget2(char *filename, struct particle **p, int64_t *num_p)
     if (i==GADGET_HALO_PARTICLE_TYPE) type = RTYPE_DM;
     else if (i==0) type = RTYPE_GAS;
     for (j=skip; j<skip+header.num_particles[i]; j++) {
-      if (header.particle_masses[i]) p[0][j].mass = header.particle_masses[i];
-      p[0][j].type = type;
+      if (header.particle_masses[i]) p[0][*num_p+j].mass = header.particle_masses[i];
+      p[0][*num_p+j].type = type;
     }
     skip+=header.num_particles[i];
   }
 
-  for (j=0; j<total_particles; j++) p[0][j].energy=0;
+  for (j=0; j<total_particles; j++) p[0][*num_p+j].energy=0;
   if (header.num_particles[0]) { //If gas particles exist
     gadget_variant_block("U");
     gadget2_read_stride(input, *num_p, header.num_particles[0], 1, sizeof(float),
