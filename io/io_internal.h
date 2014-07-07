@@ -10,6 +10,7 @@
 #define PARTICLE_TYPE_FULL 2
 
 #define OUTPUT_BUFFER_SIZE 1000000
+#define VERSION_MAX_SIZE 12
 
 struct binary_output_header {
   uint64_t magic;
@@ -19,7 +20,9 @@ struct binary_output_header {
   int64_t num_halos, num_particles;
   float box_size, particle_mass;
   int64_t particle_type;
-  char unused[BINARY_HEADER_SIZE - (sizeof(float)*12) - (sizeof(int64_t)*6)];
+  int32_t format_revision;
+  char rockstar_version[VERSION_MAX_SIZE];
+  char unused[BINARY_HEADER_SIZE - (sizeof(char)*VERSION_MAX_SIZE) - (sizeof(float)*12) - sizeof(int32_t) - (sizeof(int64_t)*6)];
 };
 
 void fill_binary_header(struct binary_output_header *bh,

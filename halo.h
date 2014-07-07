@@ -1,6 +1,8 @@
 #ifndef HALO_H
 #define HALO_H
 
+#define HALO_FORMAT_REVISION 1
+
 #include <stdint.h>
 
 struct halo {

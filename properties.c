@@ -328,6 +328,7 @@ float estimate_total_energy(int64_t total_p, float *energy_ratio) {
       phi += po[i].mass/r;
     }
   }
+  total_phi /= 2.0; //U = sum pe/2
   *energy_ratio = 0;
   if (total_phi) *energy_ratio = (ke/total_phi);
   return ((ke - total_phi)*Gc/SCALE_NOW);

@@ -70,7 +70,8 @@ void get_input_filename(char *buffer, int maxlen, int64_t snap, int64_t block) {
 	if (snapnames) snprintf(buffer+out, maxlen-out, "%s", snapnames[snap]);
 	else {
 	  if (!strncasecmp(FILE_FORMAT, "GADGET", 6) ||
-	      !strncasecmp(FILE_FORMAT, "LGADGET", 7))
+	      !strncasecmp(FILE_FORMAT, "LGADGET", 7) ||
+	      !strncasecmp(FILE_FORMAT, "AREPO", 5))
 	    snprintf(buffer+out, maxlen-out, "%03"PRId64, snap);
 	  else snprintf(buffer+out, maxlen-out, "%"PRId64, snap);
 	}

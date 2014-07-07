@@ -87,6 +87,7 @@ float _calc_halo_dist(struct halo *h1, struct halo *h2) {
 float calc_halo_dist(struct halo *h1, struct halo *h2) {
   if (h2->r > h1->r*0.99999 && 
       !(h1->type == RTYPE_DM && h2->type != RTYPE_DM)) return 1e20;
+  if ((h1->type == RTYPE_DM && h2->type != RTYPE_DM) && (h1->m < h2->m)) return 1e20;
   //if (h2->r > h1->r*2.0) return 1e20;
   return (_calc_halo_dist(h1, h2));
 }

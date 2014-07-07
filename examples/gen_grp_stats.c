@@ -30,7 +30,7 @@ int64_t max_num_po = 0;
 int64_t *grp_ids = NULL;
 float *grp_masses = NULL;
 int64_t num_grp_ids = 0;
-FILE *stats, *grp;
+FILE *stats, *grp, *ids;
 
 
 void check_grp_ids_space(int64_t num_requested) {
@@ -74,6 +74,7 @@ void calc_potentials(double dm_mass) {
       po[j].mass = p[the_h->p_start+j].mass;
       po[j].energy = p[the_h->p_start+j].energy;
       po[j].hid = p[the_h->p_start+j].ehid;
+      po[j].type = p[the_h->p_start+j].type;
     }
     compute_kinetic_energy(po, the_h->num_p, the_h->pos+3, the_h->pos);
     compute_potential(po, the_h->num_p);
@@ -91,9 +92,10 @@ void calc_potentials(double dm_mass) {
       }
       r = 1e3*sqrt(r);
       if (r>the_h->r) continue;
-      int64_t type = 0; /* DM */
-      if (po[j].energy>0) type = 1; /* Gas */
-      if (!po[j].energy && po[j].mass < 0.99*PARTICLE_MASS) type = 2; /* Star */
+      //int64_t type = 0; /* DM */
+      //if (po[j].energy>0) type = 1; /* Gas */
+      //if (!po[j].energy && po[j].mass < 0.99*PARTICLE_MASS) type = 2; /* Star */
+      int64_t type = po[j].type;
       n[type]++;
       m[type]+=po[j].mass;
       check_grp_ids_space(po[j].id+1);
@@ -168,6 +170,8 @@ int main(int argc, char **argv) {
   stats=check_fopen(buffer, "w");
   snprintf(buffer, 1024, "%s.grp", argv[1]);
   grp=check_fopen(buffer, "w");
+  snprintf(buffer, 1024, "%s.ids", argv[1]);
+  ids=check_fopen(buffer, "w");
   fprintf(stats, "  Grp      N_tot     N_gas    N_star    N_dark       Mvir(M_sol)   Rvir(kpc)    GasMass(M_sol)   StarMass(M_sol)   DarkMass(M_sol)       V_max    R@V_max     VelDisp         Xc         Yc         Zc         VXc         VYc         VZc   Contam  Satellite?   False?\n");
 
   double dm_mass = atof(argv[3]);
@@ -186,11 +190,13 @@ int main(int argc, char **argv) {
     fgets(buffer, 1024, input);
     maxcount = atoll(buffer);
     fprintf(grp, "%"PRId64"\n", maxcount);
+    fprintf(ids, "%"PRId64"\n", maxcount);
     while (fgets(buffer, 1024, input)) {
       i = atoll(buffer);
       int64_t id = -1;
       if (i>=0 && i<num_grp_ids) id = grp_ids[i];
       fprintf(grp, "%"PRId64"\n", id);
+      fprintf(ids, "%"PRId64"\n", i);
       count++;
     }
     if (maxcount != count) {
@@ -201,6 +207,7 @@ int main(int argc, char **argv) {
     struct nchilada_header nh;
     char *types[3] = {"gas", "dark", "star"};
     fprintf(grp, "XXXXXXXXXXXXXXXXXX\n");
+    fprintf(ids, "XXXXXXXXXXXXXXXXXX\n");
     int64_t count = 0;
     for (j=0; j<3; j++) {
       snprintf(buffer, 1024, "%s/%s/iord", argv[2], types[j]);
@@ -218,6 +225,7 @@ int main(int argc, char **argv) {
 	} else {
 	  fread_mswap(&id, NCHILADA_ID_BYTES, 1, input, NCHILADA_SWAP);
 	}
+	fprintf(ids, "%"PRId64"\n", id);
 	if (id>=0 && id<num_grp_ids) id = grp_ids[id];
 	else id = -1;
 	fprintf(grp, "%"PRId64"\n", id);
@@ -226,8 +234,11 @@ int main(int argc, char **argv) {
     }
     check_fseeko(grp, 0, SEEK_SET);
     fprintf(grp, "%-18"PRId64"\n", count);
+    check_fseeko(ids, 0, SEEK_SET);
+    fprintf(ids, "%-18"PRId64"\n", count);
   }
   fclose(grp);
+  fclose(ids);
   return(0);
 }
 

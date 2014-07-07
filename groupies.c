@@ -575,47 +575,29 @@ void _find_subs(struct fof *f, int64_t level) {
       growing_halos[num_growing_halos-1-(i-num_dm_halos-h_start)] = halos+i;
     }
     
-    for (i=0; i<num_growing_halos; i++)
-      calc_basic_halo_props(growing_halos[i]);
-    if (!num_dm_halos) {
-      max_i = _find_biggest_parent(h_start, 0, 0);
-      halos[max_i].type = RTYPE_DM;
-      num_dm_halos = 1;
-      assert(growing_halos[num_growing_halos-1-(max_i-h_start)] == halos+max_i);
-      growing_halos[num_growing_halos-1-(max_i-h_start)] = growing_halos[0];
-      growing_halos[0] = halos+max_i;
-    }
-    build_subtree(growing_halos, num_dm_halos);
-    max_i = _find_biggest_parent(h_start, 0, 0);
-    for (i=0; i<num_growing_halos; i++) {
-      extra_info[growing_halos[i]-halos].sub_of = 
-	find_best_parent(growing_halos[i], halos+max_i) - halos;
-      /*      if (growing_halos[i] == halos+1210) {
-	printf("(%f %f %f; %f %f %f; %f; %f)\n",
-	       growing_halos[i]->pos[0], growing_halos[i]->pos[1], growing_halos[i]->pos[2],
-	       growing_halos[i]->bulkvel[0],	       growing_halos[i]->bulkvel[1],	       growing_halos[i]->bulkvel[2],
-	       growing_halos[i]->vmax, 	       growing_halos[i]->vmax_r);
-	printf("(%f %f %f; %f %f %f; %f; %f)\n",
-	       growing_halos[i]->pos[0], growing_halos[i]->pos[1], growing_halos[i]->pos[2],
-	       growing_halos[i]->corevel[0],	       growing_halos[i]->corevel[1],	       growing_halos[i]->corevel[2],
-	       growing_halos[i]->vmax, 	       growing_halos[i]->vmax_r);
+    int64_t pass = 0;
+    for (pass=0; pass<3; pass++) {
+      for (i=0; i<num_growing_halos; i++)
+	calc_basic_halo_props(growing_halos[i]);
+      if (!num_dm_halos) {
+	max_i = _find_biggest_parent(h_start, 0, 0);
+	halos[max_i].type = RTYPE_DM;
+	num_dm_halos = 1;
+	assert(growing_halos[num_growing_halos-1-(max_i-h_start)] == halos+max_i);
+	growing_halos[num_growing_halos-1-(max_i-h_start)] = growing_halos[0];
+	growing_halos[0] = halos+max_i;
       }
-      if (dist(growing_halos[i]->pos, halos[1210].pos) < 0.03 &&
-	  growing_halos[i]->type != RTYPE_DM) {
-	printf("%ld; %f (%f %f %f; %f %f %f; %f; %f); %"PRId64"; %f\n",
-	       growing_halos[i]-halos, calc_halo_dist(halos+1210, growing_halos[i]),
-	       growing_halos[i]->pos[0], growing_halos[i]->pos[1], growing_halos[i]->pos[2],
-	       growing_halos[i]->bulkvel[0],	       growing_halos[i]->bulkvel[1],	       growing_halos[i]->bulkvel[2],
-	       growing_halos[i]->vmax, 	       growing_halos[i]->vmax_r,
-	       extra_info[growing_halos[i]-halos].sub_of, 
-	       calc_halo_dist(halos+extra_info[growing_halos[i]-halos].sub_of,
-			      growing_halos[i]));
-			      }*/
+      build_subtree(growing_halos, num_dm_halos);
+      max_i = _find_biggest_parent(h_start, 0, 0);
+      for (i=0; i<num_growing_halos; i++) {
+	extra_info[growing_halos[i]-halos].sub_of = 
+	  find_best_parent(growing_halos[i], halos+max_i) - halos;
+      }
+      _fix_parents(h_start);
+      merge_galaxies(num_dm_halos);
+      reassign_halo_particles(p_start, p_start + f->num_p);
     }
-    _fix_parents(h_start);
 
-    merge_galaxies(num_dm_halos);
-    reassign_halo_particles(p_start, p_start + f->num_p);
     for (i=0; i<num_growing_halos; i++) {
       calc_basic_halo_props(growing_halos[i]);
       convert_and_sort_core_particles(growing_halos[i], 

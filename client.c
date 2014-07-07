@@ -1225,7 +1225,7 @@ void client(int64_t type) {
   }
 
   srand(getpid()); /* so rand() in random_sleep() is different across procs */
-  if (NUM_WRITERS >= 512) random_sleep(5);
+  random_sleep(5*(NUM_WRITERS+NUM_READERS)/512);
   c = connect_to_addr(PARALLEL_IO_SERVER_ADDRESS, PARALLEL_IO_SERVER_PORT);
   recv_from_socket(c, &magic, sizeof(uint64_t));
   if (magic != ROCKSTAR_MAGIC) {
@@ -1250,12 +1250,12 @@ void client(int64_t type) {
     else if (!strcmp(cmd, "writ")) {
       type = WRITER_TYPE;
       hostname = recv_msg_nolength(c, hostname);
-      for (i=0; i<5000 && s<0; i+=29) {
+      for (i=0; i<10000 && s<0; i+=29) {
 	portnum = PARALLEL_IO_WRITER_PORT+i;
 	snprintf(port, 10, "%"PRId64, portnum);
 	s = listen_at_addr(hostname, port);
       }
-      if (i>=5000) {
+      if (i>=10000) {
 	fprintf(stderr, "[Error] Couldn't start particle data server at %s:%d-%d!\n",
 		hostname, (int)PARALLEL_IO_WRITER_PORT, (int)portnum);
 	exit(1);

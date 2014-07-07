@@ -54,6 +54,7 @@ void calc_bgc2_parents(int64_t snap)
   for (i=0; i<NUM_WRITERS; i++) {
     get_output_filename(buffer, 1024, snap, i, "bgc2");
     load_bgc2_groups(buffer, hdrs + i, &gd, &num_groups);
+    BOX_SIZE = hdrs[i].box_size;
     first_ids[i]=-1;
     if (hdrs[i].ngroups) {
       first_ids[i] = gd[num_groups - hdrs[i].ngroups].id;
