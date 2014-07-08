@@ -30,8 +30,6 @@ void load_particles(char *filename, struct particle **p, int64_t *num_p) {
   enum parsetype types[NUM_INPUTS];
   void *data[NUM_INPUTS] = {&(d.pos[0]), &(d.pos[1]), &(d.pos[2]), &(d.pos[3]), &(d.pos[4]), &(d.pos[5]), &(d.mass), &(d.energy), &(d.id), &(d.type)};
 
-  //printf("[Warning!] Hacked IO-Ascii!!!\n");
-
   for (n=0; n<NUM_INPUTS; n++) types[n] = (enum parsetype)stypes[n];
   
   input = check_fopen(filename, "r");

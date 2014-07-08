@@ -537,6 +537,7 @@ int fast3tree_find_sphere_marked(struct fast3tree *t, struct fast3tree_results *
   int i;
   
   res->num_points = 0;
+  if (!t->num_points) return 1;
   if (!periodic || _fast3tree_sphere_inside_box(t->root, c, r)) {
      _fast3tree_find_sphere_offset(t->root, res, c, c, o, r, 1, do_marking);
     return 2;

@@ -181,7 +181,7 @@ read_nchilada(filename, "star/iord", p, num_p, OFFSET(id), sizeof(int64_t), 1, 1
   read_nchilada(filename, "star/metals", p, num_p, OFFSET(metallicity), sizeof(float), 1, 0, block);
   read_nchilada(filename, "star/soft", p, num_p, OFFSET(softening), sizeof(float), 1, 0, block);
 
-  filename[length] = '.';
+  if (NUM_BLOCKS > 1) filename[length] = '.';
 
   int64_t i;
   for (i=gas_start; i<dark_start; i++) p[0][i].type = RTYPE_GAS;

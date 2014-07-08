@@ -26,6 +26,7 @@
 
 #ifdef ENABLE_HDF5
 #include "io_arepo.h"
+#include "io_enzo.h"
 #endif /* ENABLE_HDF5 */
 
 char **snapnames = NULL;
@@ -73,6 +74,8 @@ void get_input_filename(char *buffer, int maxlen, int64_t snap, int64_t block) {
 	      !strncasecmp(FILE_FORMAT, "LGADGET", 7) ||
 	      !strncasecmp(FILE_FORMAT, "AREPO", 5))
 	    snprintf(buffer+out, maxlen-out, "%03"PRId64, snap);
+	  else if (!strncasecmp(FILE_FORMAT, "ENZO", 4))
+	    snprintf(buffer+out, maxlen-out, "%04"PRId64, snap);
 	  else snprintf(buffer+out, maxlen-out, "%"PRId64, snap);
 	}
       } 
@@ -85,7 +88,9 @@ void get_input_filename(char *buffer, int maxlen, int64_t snap, int64_t block) {
     }
     out = strlen(buffer);
   }
-  if (!strncasecmp(FILE_FORMAT, "NCHILADA", 8) && NUM_BLOCKS > 1) {
+  if ((!strncasecmp(FILE_FORMAT, "NCHILADA", 8) ||
+       !strncasecmp(FILE_FORMAT, "ENZO", 4))
+      && NUM_BLOCKS > 1) {
     snprintf(buffer+out, maxlen-out, ".%"PRId64, block);
     out = strlen(buffer);
   }
@@ -129,14 +134,22 @@ void read_particles(char *filename) {
   else if (!strncasecmp(FILE_FORMAT, "NCHILADA", 8)) {
     load_particles_nchilada(filename, &p, &num_p);
   }
-  else if (!strncasecmp(FILE_FORMAT, "AREPO", 5)) {
 #ifdef ENABLE_HDF5
+  else if (!strncasecmp(FILE_FORMAT, "AREPO", 5)) {
     load_particles_arepo(filename, &p, &num_p);
-#else
-    fprintf(stderr, "[Error] AREPO needs HDF5 support.  Recompile Rockstar using \"make with_hdf5\".\n");
-    exit(1);
-#endif
   }
+  else if (!strncasecmp(FILE_FORMAT, "ENZO", 4)) {
+    load_particles_enzo(filename, &p, &num_p);
+    //fprintf(stderr, "[Warning] ENZO format currently supports DM particles only.\n");
+  }
+#else
+  else if (!strncasecmp(FILE_FORMAT, "AREPO", 5) ||
+        !strncasecmp(FILE_FORMAT, "ENZO", 4)) {
+    fprintf(stderr, "[Error] %s needs HDF5 support.  Recompile Rockstar using \"make with_hdf5\".\n",
+            FILE_FORMAT);
+    exit(1);
+  }
+#endif
   else {
     fprintf(stderr, "[Error] Unknown filetype %s!\n", FILE_FORMAT);
     exit(1);

@@ -10,6 +10,7 @@ v0.99.9 RC3:
 *) Make finish_bgc2 auto-load the box size from BGC2 files (thanks to Manodeep Sinha for catching).
 *) Additional field in binary output header to indicate non-compatible binary versions.
 *) Experimental binary catalog format for use with future versions of Consistent Trees.
+*) Added preliminary ENZO support (reading DM particles only), thanks to John Wise.
 
 v0.99.9 RC2 (9/27/13):
 *) Major fix to shape calculations: previous versions had biased iterative calculations of the shape major axis.  (Thanks to Doug Hellinger for finding!).  Shape calculations are now weighted according to the Allgood et al. approach (1/r^2).
