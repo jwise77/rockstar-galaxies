@@ -71,9 +71,10 @@ non-Unix environments.  (Mac OS X is fine; Windows is not).
     `GADGET_MASS_CONVERSION`) to convert Gadget internal units to comoving Mpc/h
     and Msun/h.
     
-    Similarly, if you use `TIPSY`, you should set the length and velocity
-    conversion multipliers (`TIPSY_LENGTH_CONVERSION` and `TIPSY_MASS_CONVERSION`)
-    to convert Tipsy internal units to comoving Mpc/h and physical km/s.
+    Similarly, if you use `TIPSY`, you should set the length, velocity, and mass
+    conversion multipliers (`TIPSY_LENGTH_CONVERSION`,
+    `TIPSY_VELOCITY_CONVERSION`, and `TIPSY_MASS_CONVERSION`)
+    to convert Tipsy internal units to comoving Mpc/h, physical km/s, and Msun/h.
     Note that Tipsy format is in a _beta stage of support_---please contact
     me if you have issues!
     
