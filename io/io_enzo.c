@@ -116,7 +116,7 @@ void enzo_load_cosmology (char *filename, int32_t *max_static_level)
 void load_particles_enzo(char *filename, struct particle **p, int64_t *num_p) {
 
   char buffer[1024];
-  int64_t i, dim, dummy, grid, nfine, ngrids0;
+  int64_t i, dim, dummy, grid, nfine;
   int32_t max_static_level = 0;
   struct EnzoGrid *all_grids = NULL;
   struct EnzoGrid *grids = NULL;
@@ -188,10 +188,8 @@ void load_particles_enzo(char *filename, struct particle **p, int64_t *num_p) {
       } else {
 	if (all_grids[i].fname) free(all_grids[i].fname);
       }
-    ngrids0 = EnzoNumFiles;
     EnzoNumFiles = nfine;
   } else {
-    ngrids0 = -1;
     grids = all_grids;
   }
 
@@ -279,15 +277,15 @@ void load_particles_enzo(char *filename, struct particle **p, int64_t *num_p) {
 
   if (NUM_BLOCKS > 1) filename[length] = '.';
   snprintf(buffer, 1024, "particles.%"PRId64".ascii", block);
-  FILE *output = check_fopen(buffer, "w");
-  fprintf(output, "#X Y Z VX VY VZ Mass Energy ID Type\n");
-  for (i=0; i<*num_p; i++) {
-    fprintf(output, "%f %f %f %f %f %f %f %f %"PRId64" %d\n",
-	    p[0][i].pos[0], p[0][i].pos[1], p[0][i].pos[2], 
-	    p[0][i].pos[3], p[0][i].pos[4], p[0][i].pos[5], 
-	    p[0][i].mass, p[0][i].energy, p[0][i].id, p[0][i].type); 
-  }
-  fclose(output);
+  //FILE *output = check_fopen(buffer, "w");
+  //fprintf(output, "#X Y Z VX VY VZ Mass Energy ID Type\n");
+  //for (i=0; i<*num_p; i++) {
+  //  fprintf(output, "%f %f %f %f %f %f %f %f %"PRId64" %d\n",
+  //	    p[0][i].pos[0], p[0][i].pos[1], p[0][i].pos[2], 
+  //	    p[0][i].pos[3], p[0][i].pos[4], p[0][i].pos[5], 
+  //	    p[0][i].mass, p[0][i].energy, p[0][i].id, p[0][i].type); 
+  //}
+  //fclose(output);
 }
 
 
