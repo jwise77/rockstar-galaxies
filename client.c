@@ -827,8 +827,6 @@ void accept_workloads(char *c_address, char *c_port, int64_t snap, int64_t chunk
 	recv_from_socket(m, p, sizeof(struct particle)*w.num_particles);
       record_time(recv_time);
 
-//      fprintf(stderr, "cc: %d %d %d %d %d %d\n", w.num_particles, w.num_meta_p, w.num_fofs, 
-//	      w.num_halos, w.chunk, w.num_meta_fofs);
       if (w.num_meta_fofs) {
 	set_sizes=recv_and_alloc(m, set_sizes, sizeof(int64_t)*w.num_meta_fofs);
 	bgroup_list = recv_and_alloc(m, bgroup_list, sizeof(struct bgroup)*w.total_bg);
@@ -916,7 +914,6 @@ void accept_workloads(char *c_address, char *c_port, int64_t snap, int64_t chunk
       total_h += num_halos;
       total_wku++;
 
-      //      fprintf(stderr, "Workunit done (%"PRId64" halos found; %"PRId64" chunks)!!!\n", num_halos, num_chunks);
       for (i=0; i<num_halos; i++) wrap_into_box(halos[i].pos);
       for (i=0; i<num_chunks; i++) {
 	struct fof *chunk_fofs=NULL;

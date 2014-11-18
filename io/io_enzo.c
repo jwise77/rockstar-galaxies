@@ -75,7 +75,7 @@ void enzo_load_cosmology (char *filename, int32_t *max_static_level)
     sscanf(buffer, "#DataCGSConversionFactor[3] = %lg %*s", &EnzoVelocityUnit);
     if (sscanf(buffer, "StaticRefineRegionLevel[%d] = %d", &region, &temp_level) == 2)
       if (temp_level > *max_static_level)
-	*max_static_level = temp_level;
+	*max_static_level = temp_level+1;
   }  // END line read
 
   fclose(input);
