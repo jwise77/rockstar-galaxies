@@ -74,7 +74,7 @@ void enzo_load_cosmology (char *filename, int32_t *max_static_level)
     sscanf(buffer, "CosmologyCurrentRedshift = %f", &redshift);
     sscanf(buffer, "#DataCGSConversionFactor[3] = %lg %*s", &EnzoVelocityUnit);
     if (sscanf(buffer, "StaticRefineRegionLevel[%d] = %d", &region, &temp_level) == 2)
-      if (temp_level > *max_static_level)
+      if (temp_level+1 > *max_static_level)
 	*max_static_level = temp_level+1;
   }  // END line read
 
@@ -108,7 +108,8 @@ void enzo_load_cosmology (char *filename, int32_t *max_static_level)
       EnzoNumFiles++;
   }  // END file line read
   fclose(input);
-  //fprintf(stderr, "Grids = %"PRId64"\n", EnzoNumFiles);
+//  fprintf(stderr, "Grids = %"PRId64", PARTICLE_MASS = %g, max_static_level = %d\n", 
+//	  EnzoNumFiles, PARTICLE_MASS, *max_static_level);
 }
 
 /************************************************************************/
