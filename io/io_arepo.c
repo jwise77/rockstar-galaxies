@@ -154,6 +154,7 @@ void load_particles_arepo(char *filename, struct particle **p, int64_t *num_p)
   printf("AREPO: avgPartSpacing: %g Mpc/h\n\n", AVG_PARTICLE_SPACING);
   
   if (!npart[AREPO_DM_PARTTYPE]) {
+    H5Fclose(HDF_FileID);
     printf("   SKIPPING FILE, PARTICLE COUNT ZERO.\n");
     return;
   }

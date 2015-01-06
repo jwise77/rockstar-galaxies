@@ -131,7 +131,7 @@ void jacobi_decompose(double cov_matrix[][NUM_PARAMS], double *eigenvalues, doub
 }
 
 
-void set_eig(double input[][3], double *res) {
+void set_eig(double input[][3], double *res, double *axis_ratio) {
   double output[3][3];
   double eigs[3];
   jacobi_decompose(input, eigs, output);
@@ -140,9 +140,18 @@ void set_eig(double input[][3], double *res) {
   if (eigs[2] < *res) *res = eigs[2];
   if (*res <= 0) *res = sqrt(input[0][0] + input[1][1] + input[2][2]);
   else { *res = sqrt(*res); }
+  if (axis_ratio) {
+    double max = eigs[0];
+    if (eigs[1] > max) max = eigs[1];
+    if (eigs[2] > max) max = eigs[2];
+    if (max < 0) max = 0;
+    max = sqrt(max);
+    *axis_ratio = 1;
+    if (*res < max && max > 0) *axis_ratio = *res / max;
+  }
 }
 
-void calc_deviations(double corr[][6], double *sig_x, double *sig_v)
+void calc_deviations(double corr[][6], double *sig_x, double *sig_v, double *axis_x, double *axis_v)
 {
   double input[3][3];
   int64_t i, j;
@@ -151,10 +160,10 @@ void calc_deviations(double corr[][6], double *sig_x, double *sig_v)
       corr[i][j] = corr[j][i];
 
   for (i=0; i<3; i++) for (j=0; j<3; j++) input[i][j] = corr[i][j];
-  set_eig(input, sig_x);
+  set_eig(input, sig_x, axis_x);
 
   for (i=3; i<6; i++) for (j=3; j<6; j++) input[i-3][j-3] = corr[i][j];
-  set_eig(input, sig_v);
+  set_eig(input, sig_v, axis_v);
 }
 
 void matrix_multiply(double m[][NUM_PARAMS], double *in, double *out) {

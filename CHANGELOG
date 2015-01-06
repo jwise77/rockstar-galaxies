@@ -1,3 +1,6 @@
+v0.99.9 RC4:
+*) Sign error for the Hubble term in kinetic energy calculations now fixed (thanks to Alex Ji for finding).  This has almost no effect on halo catalogs because the Hubble term is extremely subdominant on halo scales.
+
 v0.99.9 RC3:
 *) Fix to io/io_tipsy.c to support non-XDR TIPSY files.  (Thanks to Robert Thompson for finding!).
 *) Major fix to shape calculations within R_500c: previous versions were effectively not iterating the shape calculation.

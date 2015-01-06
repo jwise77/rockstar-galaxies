@@ -170,7 +170,7 @@ void compute_kinetic_energy(struct potential *po, int64_t num_po, float *vel_cen
   for (i=0; i<num_po; i++) {
     if (po[i].ke < 0) continue;
     po[i].ke = dv = 0;
-    for (j=0; j<3; j++) { dv = vel_cen[j]-po[i].pos[j+3] + hubble*SCALE_NOW*(po[i].pos[j]-pos_cen[j]); po[i].ke+=dv*dv; }
+    for (j=0; j<3; j++) { dv = po[i].pos[j+3] - vel_cen[j] + hubble*SCALE_NOW*(po[i].pos[j]-pos_cen[j]); po[i].ke+=dv*dv; }
     po[i].ke += po[i].energy;
     po[i].ke *= conv_const;
   }

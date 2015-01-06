@@ -45,12 +45,12 @@ float _estimate_vmax(double *bins, int64_t num_bins, float r_scale) {
   return sqrt(Gc*vmax/SCALE_NOW);
 }
 
-void estimate_vmax(struct halo *h) {
+void estimate_vmax(struct halo *h, int64_t include_children) {
   double bins[VMAX_BINS]={0};
   h->vmax = h->vmax_r = 0;
   if (!(h->child_r>0)) return;
   float r_scale = ((double)VMAX_BINS)/h->child_r;
-  _populate_mass_bins(h,h,bins,VMAX_BINS,r_scale,0);
+  _populate_mass_bins(h,h,bins,VMAX_BINS,r_scale,include_children);
   h->vmax = _estimate_vmax(bins,VMAX_BINS,r_scale);
   h->vmax_r = sqrt(SCALE_NOW) * _estimate_vmax(bins,VMAX_BINS,r_scale)
     * dynamical_time;
@@ -141,7 +141,7 @@ void calc_basic_halo_props(struct halo *h) {
   
   h->r = cbrt(h->m/((4.0*M_PI/3.0)*particle_rvir_dens));
   h->child_r = cbrt(h->num_child_particles/((4.0*M_PI/3.0)*particle_rvir_dens));
-  estimate_vmax(h);
+  estimate_vmax(h, 0);
   if (h->vmax_r) h->r = h->vmax_r;
   h->vrms = sqrt(h->vrms);
 

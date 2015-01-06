@@ -24,6 +24,7 @@
 #define POINTS_PER_LEAF 40
 #define FAST3TREE_PREFIX GROUPIES
 #define FAST3TREE_TYPE struct particle
+#define FAST3TREE_EXTRA_INFO float ll;
 #include "fast3tree.c"
 
 struct particle *copies = NULL; //For storing phase-space FOFs
@@ -199,11 +200,27 @@ int64_t calc_particle_radii(struct halo *base_h, struct halo *h, float *cen, int
 
 #include "properties.c"
 
+
+void link_particle_types(struct fof *f) {
+  int64_t i;
+  assert(f->num_p == num_copies);
+  init_particle_smallfofs(f->num_p, f->particles);
+  int64_t idx[NUM_RTYPES];
+  for (i=0; i<NUM_RTYPES; i++) idx[i] = -1;
+  for (i=0; i<f->num_p; i++) {
+    int64_t type = f->particles[i].type;
+    if (idx[type] < 0) { idx[type] = i; continue; }
+    struct particle *tp[2] = {f->particles+idx[type], f->particles+i};
+    link_particle_to_fof(f->particles+idx[type], 2, tp);
+  }
+  build_fullfofs();
+}
+
 void _find_subfofs_at_r(struct fof *f, float target_r) {
   int64_t i;
   init_particle_smallfofs(f->num_p, f->particles);
+  
   for (i=0; i<f->num_p; i++) {
-    //if (f->particles[i].type != RTYPE_DM) continue;
     fast3tree_find_sphere(phasetree, res, f->particles[i].pos, target_r); //*pow(f->particles[i].mass/PARTICLE_MASS, 1.0/6.0));
     link_particle_to_fof(f->particles + i, res->num_points, res->points);
   }
@@ -230,8 +247,9 @@ int64_t separate_dm(struct fof *f) {
 void _find_subfofs_better2(struct fof *f,  float thresh) {
   int64_t i, j, num_test = MAX_PARTICLES_TO_SAMPLE;
   float target_r = 0;
-  norm_sd(f, thresh);
-  int64_t num_dm = separate_dm(f);
+  norm_sd(f, thresh, NULL, NULL);
+  int64_t num_dm = 0; //f->num_p;
+  //int64_t num_dm = separate_dm(f);
   if (!num_dm) num_dm = f->num_p;
   fast3tree_rebuild(phasetree, num_dm, f->particles);
   if (EXACT_LL_CALC) num_test = num_dm;
@@ -249,6 +267,7 @@ void _find_subfofs_better2(struct fof *f,  float thresh) {
   _find_subfofs_at_r(f, target_r);
 }
 
+
 void reassign_halo_particles(int64_t p_start, int64_t p_end) {
   int64_t last_halo, j;
   partition_sort_particles(p_start, p_end, copies, particle_halos);
@@ -261,6 +280,122 @@ void reassign_halo_particles(int64_t p_start, int64_t p_end) {
     halos[last_halo].p_start = j;
   }
   halos[last_halo].num_p = j - halos[last_halo].p_start;
+}
+
+int sort_by_ll(const void *a, const void *b) {
+  const int64_t *c = a;
+  const int64_t *d = b;
+  if (phasetree->root[*c].ll < phasetree->root[*d].ll) return -1;
+  if (phasetree->root[*c].ll > phasetree->root[*d].ll) return 1;
+  return 0;
+}
+
+
+int64_t poisson_merge(float ll, float ll_saddle, int64_t np) {
+  if (np < MIN_HALO_PARTICLES) return 1;
+  //Require ~5sig:
+  float rel_err = sqrt(1.0/(np-1.0));
+  if (ll*(1.0+GALAXY_POISSON_SIGMA*rel_err) > ll_saddle) return 1;
+  return 0;
+}
+
+void _find_subfofs_better3(struct fof *f) {
+  int64_t i, j, k;
+  static int64_t sf_offset = 0;
+  norm_sd_bary(f);
+  fast3tree_rebuild(phasetree, f->num_p, f->particles);
+  for (i=0; i<phasetree->num_nodes; i++) {
+    double v = 1.0;
+    struct tree3_node *n = phasetree->root + i;
+    for (j=0; j<6; j++) v *= n->max[j]-n->min[j];
+    n->ll = 1e20;
+    if (n->num_points && v>0) n->ll = pow(v/n->num_points, 1.0/6.0);
+    else if (n->parent) n->ll = n->parent->ll;
+  }
+
+  int64_t *process_order = NULL;
+  check_realloc_s(process_order, sizeof(int64_t), phasetree->num_nodes);
+  int64_t num_leaf_nodes = 0;
+  for (i=0; i<phasetree->num_nodes; i++) {
+    if (phasetree->root[i].div_dim >= 0) continue;
+    process_order[num_leaf_nodes] = i;
+    num_leaf_nodes++;
+  }
+  qsort(process_order, num_leaf_nodes, sizeof(int64_t), sort_by_ll);
+  init_particle_smallfofs(f->num_p, f->particles);
+
+  float *lls = NULL;
+  check_realloc_s(lls, sizeof(float), num_leaf_nodes);
+  int64_t *gp = NULL;
+  check_realloc_s(gp, sizeof(int64_t), num_leaf_nodes);
+  for (i=0; i<num_leaf_nodes; i++) {
+    struct tree3_node *n = phasetree->root +  process_order[i];
+    if (n->ll > 1e10 || !n->num_points) continue;
+    //Need to sort by roots, also put -1's at end
+    partition_sort_particles(0, n->num_points, n->points, particle_smallfofs + (n->points - f->particles));
+    int64_t j_start = 0;
+    for (; j_start<n->num_points; j_start++) if (SMALLFOF_OF(n->points+j_start)>-1) break;
+    int64_t main_halo;
+    if (j_start==n->num_points) {
+      main_halo = add_new_smallfof();
+      lls[main_halo] = n->ll;
+      gp[main_halo] = 0;
+    }
+    else {
+      main_halo = smallfofs[SMALLFOF_OF(n->points+j_start)].root;
+    }
+    for (j=j_start+1; j<n->num_points; j++) {
+      int64_t sf = smallfofs[SMALLFOF_OF(n->points+j)].root;
+      //if ((sf != main_halo) && (lls[sf] > DENSITY_MERGE_THRESH*n->ll)) {
+      if ((sf != main_halo) && poisson_merge(lls[sf], n->ll, gp[sf])) {
+	if (gp[sf]>1000)
+	  fprintf(stderr, "Merged ll %e & %e, np: %"PRId64"\n", lls[sf], n->ll, gp[sf]);
+	merge_smallfofs(smallfofs+main_halo, smallfofs+sf);
+	lls[sf] = lls[main_halo];
+	gp[main_halo] += gp[sf];
+	gp[sf] = 0;
+      }
+    }
+
+
+    float ll = n->ll;
+    //if (n->parent) ll = n->parent->ll;
+    ll *= GALAXY_LINKING_LENGTH;
+    for (j=0; j<n->num_points; j++) {
+      fast3tree_find_sphere(phasetree, res, n->points[j].pos, ll);
+      int64_t sf = SMALLFOF_OF(n->points + j);
+      if (sf < 0) sf = main_halo;
+      else sf = smallfofs[sf].root;
+      for (k=0; k<res->num_points; k++) {
+	if (SMALLFOF_OF(res->points[k]) < 0) {
+	  SMALLFOF_OF(res->points[k]) = sf;
+	  gp[sf]++;
+	}
+      }
+    }
+  }
+
+  if (OUTPUT_LEVELS) {
+    FILE *out = check_fopen("stars_levels.txt", "a");
+    int64_t max_sf = -1;
+    for (i=0; i<phasetree->num_nodes; i++) {
+      struct tree3_node *n = phasetree->root + i;
+      if (n->div_dim >= 0) continue;
+      for (j=0; j<n->num_points; j++) {
+	int64_t sf = SMALLFOF_OF(n->points + j);
+	if (sf>0) sf = smallfofs[sf].root;
+	if (sf > max_sf) max_sf = sf;
+	fprintf(out, "%f %f %f %f %f %f %e %"PRId64"\n", n->points[j].pos[0], n->points[j].pos[1], n->points[j].pos[2], n->points[j].pos[3], n->points[j].pos[4], n->points[j].pos[5], n->ll, sf);
+      }
+    }
+    fclose(out);
+    sf_offset += max_sf + 1;
+  }
+
+  free(lls);
+  free(gp);
+  free(process_order);
+  build_fullfofs();
 }
 
 int could_be_poisson_or_force_res(struct halo *h1, struct halo *h2, int64_t *is_force_res) {
@@ -448,23 +583,32 @@ void merge_galaxies(int64_t num_dm_halos) {
   }  
 }
 
+
 void _find_subs(struct fof *f, int64_t level) {
   int64_t f_start, f_end, h_start, i, j, f_index;
-  int64_t p_start, max_i = 0, is_force_res;
+  int64_t p_start, max_i = 0, is_force_res, do_higher_levels=1;
 
   //Verify that the number of DM particles is >MIN_HALO_PARTICLES
   if (f->num_p < MIN_HALO_PARTICLES) return;
-  /*if (!level) {
-    for (i=0,j=0; i<f->num_p; i++) if (f->particles[i].type==RTYPE_DM) j++;
-    if (j < MIN_HALO_PARTICLES) return;
-    }*/
+  if (f->particles[0].type == RTYPE_STAR) {
+    if (level==2) do_higher_levels = 0;
+  }
 
   //Find subFOFs
   p_start = f->particles - copies;
   f_index = f - subfofs;
-  _find_subfofs_better2(f, FOF_FRACTION);
+  if (do_higher_levels) {
+    if (level) {
+      if (f->particles[0].type != RTYPE_STAR)
+	_find_subfofs_better2(f, FOF_FRACTION);
+      else
+	_find_subfofs_better3(f);
+    }
+    else link_particle_types(f);
+  }
   f_start = num_subfofs;
-  copy_fullfofs(&subfofs, &num_subfofs, &num_alloced_subfofs);
+  if (do_higher_levels) 
+    copy_fullfofs(&subfofs, &num_subfofs, &num_alloced_subfofs);
   f_end = num_subfofs;
 
   h_start = num_halos;
@@ -575,33 +719,35 @@ void _find_subs(struct fof *f, int64_t level) {
       growing_halos[num_growing_halos-1-(i-num_dm_halos-h_start)] = halos+i;
     }
     
-    int64_t pass = 0;
-    for (pass=0; pass<3; pass++) {
-      for (i=0; i<num_growing_halos; i++)
-	calc_basic_halo_props(growing_halos[i]);
-      if (!num_dm_halos) {
+    if (0) {
+      int64_t pass = 0;
+      for (pass=0; pass<1; pass++) {
+	for (i=0; i<num_growing_halos; i++)
+	  calc_basic_halo_props(growing_halos[i]);
+	if (!num_dm_halos) {
+	  max_i = _find_biggest_parent(h_start, 0, 0);
+	  halos[max_i].type = RTYPE_DM;
+	  num_dm_halos = 1;
+	  assert(growing_halos[num_growing_halos-1-(max_i-h_start)] == halos+max_i);
+	  growing_halos[num_growing_halos-1-(max_i-h_start)] = growing_halos[0];
+	  growing_halos[0] = halos+max_i;
+	}
+	build_subtree(growing_halos, num_dm_halos);
 	max_i = _find_biggest_parent(h_start, 0, 0);
-	halos[max_i].type = RTYPE_DM;
-	num_dm_halos = 1;
-	assert(growing_halos[num_growing_halos-1-(max_i-h_start)] == halos+max_i);
-	growing_halos[num_growing_halos-1-(max_i-h_start)] = growing_halos[0];
-	growing_halos[0] = halos+max_i;
+	for (i=0; i<num_growing_halos; i++) {
+	  extra_info[growing_halos[i]-halos].sub_of = 
+	    find_best_parent(growing_halos[i], halos+max_i) - halos;
+	}
+	_fix_parents(h_start);
+	merge_galaxies(num_dm_halos);
+	reassign_halo_particles(p_start, p_start + f->num_p);
       }
-      build_subtree(growing_halos, num_dm_halos);
-      max_i = _find_biggest_parent(h_start, 0, 0);
-      for (i=0; i<num_growing_halos; i++) {
-	extra_info[growing_halos[i]-halos].sub_of = 
-	  find_best_parent(growing_halos[i], halos+max_i) - halos;
-      }
-      _fix_parents(h_start);
-      merge_galaxies(num_dm_halos);
-      reassign_halo_particles(p_start, p_start + f->num_p);
     }
 
     for (i=0; i<num_growing_halos; i++) {
       calc_basic_halo_props(growing_halos[i]);
       convert_and_sort_core_particles(growing_halos[i], 
-	    copies + growing_halos[i]->p_start, 0, NULL);
+				      copies + growing_halos[i]->p_start, 0, NULL);
     }
     calc_num_child_particles(h_start);
     if (OUTPUT_LEVELS) output_level(p_start, p_start+f->num_p, h_start, -1);
@@ -709,7 +855,17 @@ float find_median_r(float *rad, int64_t num_p, float frac) {
 }
 
 
-void norm_sd(struct fof *f, float thresh) {
+void norm_sd_bary(struct fof *f) {
+  float v_scaling = sqrt(SCALE_NOW)*dynamical_time/NON_DM_METRIC_SCALING;
+  int64_t i, j;
+  for (i=0; i<f->num_p; i++) {
+    for (j=3; j<6; j++)
+      f->particles[i].pos[j] *= v_scaling;
+  }
+}
+
+
+void norm_sd(struct fof *f, float thresh, double *axis_x, double *axis_v) {
   double pos[6] = {0};
   double corr[6][6];
   double sig_x, sig_v, max_x=0, min_x=0, offset_x = 0;
@@ -746,17 +902,20 @@ void norm_sd(struct fof *f, float thresh) {
     for (k=j; k<6; k++)
       corr[j][k]/=total_mass;
 
-  calc_deviations(corr, &sig_x, &sig_v);
+  calc_deviations(corr, &sig_x, &sig_v, axis_x, axis_v);
 
   if (f->num_p == num_copies) 
     sig_x *= INITIAL_METRIC_SCALING;
-  if (!dm) sig_x /= NON_DM_METRIC_SCALING;
+  //if (!dm) sig_x /= NON_DM_METRIC_SCALING;
+  //  float sig_x_bary = sig_x / 3.0;
+  float sig_v_bary = sig_v * NON_DM_METRIC_SCALING;
 
   if (!sig_x || !sig_v) return;
 
   for (i=0; i<f->num_p; i++) {
+    float t_sig_v = (f->particles[i].type == RTYPE_DM) ? sig_v : sig_v_bary;
     for (j=0; j<6; j++)
-      f->particles[i].pos[j] /= ((j < 3) ? sig_x : sig_v);
+      f->particles[i].pos[j] /= ((j < 3) ? sig_x : t_sig_v);
     if (f->particles[i].pos[0] > max_x) max_x = f->particles[i].pos[0];
     if (f->particles[i].pos[0] < min_x) min_x = f->particles[i].pos[0];
   }

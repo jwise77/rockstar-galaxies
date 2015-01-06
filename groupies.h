@@ -25,8 +25,10 @@ float max_halo_radius(struct halo *h);
 //Internal functions
 void add_new_halo(void);
 void alloc_particle_copies(int64_t total_copies);
-void norm_sd(struct fof *f, float thresh);
+void norm_sd(struct fof *f, float thresh, double *axis_x, double *axis_v);
 float find_median_r(float *rad, int64_t num_p, float frac);
 
 void find_sd(struct particle *particles, int64_t n, double *sig_x, double *sig_v);
+void norm_sd_bary(struct fof *f);
+
 #endif /* GROUPIES_H */

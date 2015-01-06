@@ -69,7 +69,6 @@ void merge_smallfofs(struct smallfof *f1, struct smallfof *f2) {
 }
 
 int64_t tag_boundary_particle(struct particle *p) {
-#define SMALLFOF_OF(a) particle_smallfofs[(a) - root_p]
   int64_t f = SMALLFOF_OF(p);
   if (f<0) {
     SMALLFOF_OF(p) = add_new_smallfof();
@@ -83,13 +82,11 @@ int64_t tag_boundary_particle(struct particle *p) {
   smallfofs[smallfofs[f].root].root = new_fof;
   num_boundary_fofs++;
   return (num_boundary_fofs-1);
-#undef SMALLFOF_OF
 }
 
 
 void link_particle_to_fof(struct particle *p, int64_t n, struct particle **links) {
   int64_t i;
-#define SMALLFOF_OF(a) particle_smallfofs[(a) - root_p]
   int64_t f = SMALLFOF_OF(p);
   if (n<2) return;
   if (f<0) {
@@ -103,12 +100,10 @@ void link_particle_to_fof(struct particle *p, int64_t n, struct particle **links
     if (SMALLFOF_OF(links[i]) == -1) SMALLFOF_OF(links[i]) = f;
     else merge_smallfofs(smallfofs + SMALLFOF_OF(links[i]), smallfofs + f);
   }
-#undef SMALLFOF_OF
 }
 
 void link_fof_to_fof(struct particle *p, int64_t n, struct particle **links) {
   int64_t i;
-#define SMALLFOF_OF(a) particle_smallfofs[(a) - root_p]
   int64_t f = SMALLFOF_OF(p);
   if ((n<2) || (f<0)) return;
   for (i=0; i<n; i++) {
@@ -116,7 +111,6 @@ void link_fof_to_fof(struct particle *p, int64_t n, struct particle **links) {
     if (SMALLFOF_OF(links[i]) == f) continue;
     merge_smallfofs(smallfofs + SMALLFOF_OF(links[i]), smallfofs + f);
   }
-#undef SMALLFOF_OF
 }
 
 void collapse_smallfofs(void) {
