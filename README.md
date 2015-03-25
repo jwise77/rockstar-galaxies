@@ -1,11 +1,4 @@
-
-
-
-
-
-
-
-
+**Note:** The Rockstar-Galaxies galaxy-finding algorithm is undergoing a major overhaul.  Outstanding pull requests will be merged only after this is completed.  Thanks for your patience.
 
 # The Rockstar-Galaxies Halo Finder
 
@@ -701,4 +694,3 @@ Rockstar is written in C, and requires no external libraries by default.  Please
     All halo properties are calculated in `properties.c`, in the routine `_calc_additional_halo_props()`.  All particles associated with the current halo being analyzed are in the `po` array, which is of type `struct potential` (defined in `potential.h`); particles in the array are sorted by distance from the halo center.  You may either add calculations directly in the main particle loop in `_calc_additional_halo_props()`, or you may decide to create your own particle loop as a separate routine.  If the latter case, don't forget to honor the option to skip over unbound particles unless your calculation always needs to include them; otherwise, you may get strange results for subhalos.
     
     You may store your calculated values by extending the halo structure, defined in `halo.h`.  To print out the new properties, you should modify `gen_merger_catalog()` in `io/meta_io.c`.  As with new input formats, if you think your code may be useful for others, please consider submitting it as a patch to the authors.
-    
