@@ -24,11 +24,11 @@ Science/Documentation Paper: <http://arxiv.org/abs/1110.4372>
     3. [Inline Analysis for Simulations](#markdown-header-inline-analysis-for-simulations)
     4. [Output](#markdown-header-output)
     5. [Merger Trees](#markdown-header-merger-trees)
-    6. [Host / Subhalo Relationships](#markdown-header-host--subhalo-relationships)
+    6. [Host / Subhalo Relationships](#markdown-header-host-subhalo-relationships)
     7. [Lightcones](#markdown-header-lightcones)
     8. [Controlling Output Formats](#markdown-header-controlling-output-formats)
     9. [Comparing to Published Mass Functions](#markdown-header-comparing-to-published-mass-functions)
-    10. [Infiniband / Network Connectivity Notes](#markdown-header-infiniband--network-connectivity-notes)
+    10. [Infiniband / Network Connectivity Notes](#markdown-header-infiniband-network-connectivity-notes)
     11. [Full Configuration Options](#markdown-header-full-configuration-options)
         1. [Commonly-Used Options](#markdown-header-commonly-used-options)
         2. [Rarely-used Options](#markdown-header-rarely-used-options)
@@ -261,7 +261,7 @@ non-Unix environments.  (Mac OS X is fine; Windows is not).
     compile, run "`make parents`" from the Rockstar source directory.  Then,
     run the following command
         
-        /path/to/rockstar/util/find_parents <box_size> out_XYZ.list
+        /path/to/rockstar/util/find_parents out_XYZ.list <box_size>
     
     on each halo catalog for which you want to find host halos.  Information
     about which halos are hosts and which are subs will be output as an
