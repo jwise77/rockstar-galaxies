@@ -535,24 +535,10 @@ non-Unix environments.  (Mac OS X is fine; Windows is not).
         
     2. #### Rarely-used Options ####
 
-            
-            GADGET_SKIP_NON_HALO_PARTICLES = <0 or 1> #default = 1
-        
-        By default, Rockstar only considers dark matter particles; the preceding
-        option can be set to 0 to force consideration of other particles as well
-        in GADGET2 files.  The default halo particle type in GADGET is 1; however,
+        The default halo particle type in GADGET is 1; however,
         if you need to change this, you can use the following option:
             
             GADGET_HALO_PARTICLE_TYPE = <0 to 5> #default = 1
-        
-        Note that Rockstar has no current support for multiple particle masses.  A beta version of Rockstar with support for multi-mass particles is available on request from the authors.
-            
-            RESCALE_PARTICLE_MASSES = <0 or 1> #default 1
-        
-        If only dark matter particles are used from GADGET2 files in a simulation
-        which also includes gas particles, it is necessary to rescale the particle
-        masses so as to preserve the correct matter density; setting this option
-        tells Rockstar to do so.
         
         If for some reason your simulation data has inconsistent or duplicate
         particle IDs, you can set the following option to prevent problems with
