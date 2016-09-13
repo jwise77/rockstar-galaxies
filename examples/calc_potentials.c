@@ -42,6 +42,9 @@ void calc_potentials(void) {
 
     for (j=0; j<the_h->num_p; j++) {
       po[j].id = p[the_h->p_start+j].id;
+      po[j].mass = p[the_h->p_start+j].mass;
+      po[j].energy = p[the_h->p_start+j].energy;
+      po[j].type = p[the_h->p_start+j].type;
       memcpy(po[j].pos, p[the_h->p_start+j].pos, sizeof(float)*6);
       po[j].pe = po[j].ke = 0;
     }

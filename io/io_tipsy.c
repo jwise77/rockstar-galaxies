@@ -132,12 +132,12 @@ int load_ids_tipsy(char *filename, struct tipsy_dump header, int **iords) {
 	      printf("<%s format is wrong>\n",iofilename);
 	      fclose(iordf);
 	      return 0;
-	      } else if(nbodies <= 0 || nbodies > 10000000){
+	  } else if (nbodies != header.nbodies) {
 	      fseek(iordf,0,SEEK_SET);
 	      xdrstdio_create(&xdrs,iordf,XDR_DECODE);
 	      xdr_int(&xdrs,&nbodies);
-	      if (nbodies <= 0 || nbodies > 10000000) {
-		  printf("<%s doesn't appear standard or binary or nbodies > 10 mil.>\n",iofilename);
+	      if (nbodies != header.nbodies) {
+		printf("<%s doesn't appear standard or binary or nbodies (%d) != expected (%d).>\n",iofilename, nbodies, header.nbodies);
 		  xdr_destroy(&xdrs);
 		  fclose(iordf);
 		  return 0;

@@ -9,6 +9,7 @@
 #include "../check_syscalls.h"
 #include "load_full_particles.h"
 #include <assert.h>
+#include <sys/stat.h>
 #include "../config_vars.h"
 #include "../io/io_nchilada.h"
 #include "../io/io_util.h"
@@ -189,18 +190,48 @@ int main(int argc, char **argv) {
     int64_t count=0, maxcount=0;
     fgets(buffer, 1024, input);
     maxcount = atoll(buffer);
-    fprintf(grp, "%"PRId64"\n", maxcount);
-    fprintf(ids, "%"PRId64"\n", maxcount);
-    while (fgets(buffer, 1024, input)) {
-      i = atoll(buffer);
-      int64_t id = -1;
-      if (i>=0 && i<num_grp_ids) id = grp_ids[i];
-      fprintf(grp, "%"PRId64"\n", id);
-      fprintf(ids, "%"PRId64"\n", i);
-      count++;
-    }
-    if (maxcount != count) {
-      fprintf(stderr, "Warning!  Number of IDs actually read (%"PRId64") does not correspond to number of IDs in iord file!  (%"PRId64")\n", count, maxcount);
+    if (maxcount > 0) {
+      fprintf(grp, "%"PRId64"\n", maxcount);
+      fprintf(ids, "%"PRId64"\n", maxcount);
+      while (fgets(buffer, 1024, input)) {
+	i = atoll(buffer);
+	int64_t id = -1;
+	if (i>=0 && i<num_grp_ids) id = grp_ids[i];
+	fprintf(grp, "%"PRId64"\n", id);
+	fprintf(ids, "%"PRId64"\n", i);
+	count++;
+      }
+      if (maxcount != count) {
+	fprintf(stderr, "Warning!  Number of IDs actually read (%"PRId64") does not correspond to number of IDs in iord file!  (%"PRId64")\n", count, maxcount);
+      }
+    } else { //Binary format
+      rewind(input);
+      struct stat st = {0};
+      fstat(fileno(input), &st);
+      int64_t n_expected = ((int64_t)st.st_size / (int64_t)4) - (int64_t)1;
+
+      int32_t c=0, mc=0, ii=0, se=0;
+      fread(&mc, sizeof(int32_t), 1, input);
+      if (mc != n_expected) {
+	fprintf(stderr, "Warning: max # of particles (%"PRId32") does not match file length, switching endianness\n", mc);
+	swap_endian_4byte((int8_t *)&mc);
+	se=1;
+      }
+      if (mc != n_expected) {
+	fprintf(stderr, "Error: max # of particles (%"PRId32") does not match file length (expected: %"PRId64").\n", mc, n_expected);
+      }
+      if (mc > 0) {
+	fprintf(grp, "%"PRId32"\n", mc);
+	fprintf(ids, "%"PRId32"\n", mc);
+	for (c=0; c<mc; c++) {
+	  fread(&ii, sizeof(int32_t), 1, input);
+	  if (se) swap_endian_4byte((int8_t *)&ii);
+	  int64_t id = -1;
+	  if (ii>=0 && ii<num_grp_ids) id = grp_ids[ii];
+	  fprintf(grp, "%"PRId64"\n", id);
+	  fprintf(ids, "%"PRId32"\n", ii);
+	}
+      }
     }
     fclose(input);
   } else {

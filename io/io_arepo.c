@@ -177,9 +177,15 @@ void load_particles_arepo(char *filename, struct particle **p, int64_t *num_p)
 	   npart[i], (char *)&(p[0][0].pos[0])-(char*)(p[0]), 3, H5T_NATIVE_FLOAT);
     arepo_read_dataset(HDF_FileID, filename, buffer, "Velocities", *p + (*num_p),
 	   npart[i], (char *)&(p[0][0].pos[3])-(char*)(p[0]), 3, H5T_NATIVE_FLOAT);
-    if (!massTable[i])
+    if (!massTable[i]) {
       arepo_read_dataset(HDF_FileID, filename, buffer, "Masses", *p + (*num_p),
 	   npart[i], (char *)&(p[0][0].mass)-(char*)(p[0]), 1, H5T_NATIVE_FLOAT);
+      /* if mass table is 0 but type is (primary) dark matter, need to set dark-matter particle mass */
+      if (i == AREPO_DM_PARTTYPE) {
+	PARTICLE_MASS = p[0][*num_p].mass * AREPO_MASS_CONVERSION;
+	AVG_PARTICLE_SPACING = cbrt(PARTICLE_MASS / (Om*CRITICAL_DENSITY));
+      }
+    }
     else {
       for (int64_t j=0; j<npart[i]; j++) p[0][(*num_p)+j].mass = massTable[i];
     }
@@ -201,6 +207,8 @@ void load_particles_arepo(char *filename, struct particle **p, int64_t *num_p)
     arepo_rescale_particles(*p, *num_p, npart[i]);
     printf("AREPO: first part, type %"PRId64": (%f, %f, %f, %f, %f, %f); t=%d, u=%f, m=%e\n", i, p[0][*num_p].pos[0], p[0][*num_p].pos[1], p[0][*num_p].pos[2], p[0][*num_p].pos[3], p[0][*num_p].pos[4], p[0][*num_p].pos[5], type, p[0][*num_p].energy, p[0][*num_p].mass);
     *num_p += npart[i];
+    printf("AREPO: DM Part Mass:   %g Msun/h\n", PARTICLE_MASS);
+    printf("AREPO: avgPartSpacing: %g Mpc/h\n\n", AVG_PARTICLE_SPACING);
   }
 
   H5Fclose(HDF_FileID);

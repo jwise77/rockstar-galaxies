@@ -31,6 +31,6 @@ void partition_sort_particles(int64_t min, int64_t max,
 			      struct particle *particles, int64_t *assignments);
 int64_t add_new_smallfof(void);
 void merge_smallfofs(struct smallfof *f1, struct smallfof *f2);
-
+void _collapse_smallfof(struct smallfof *f);
 
 #endif /* FOF_H */

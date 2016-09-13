@@ -1,6 +1,8 @@
 #ifndef _IO_TIPSY_H_
 #define _IO_TIPSY_H_
 #define TIPSY_MAXDIM 3
+
+#include "../particle.h"
 #include <rpc/types.h>
 #include <rpc/xdr.h>
 

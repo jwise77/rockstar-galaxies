@@ -329,11 +329,18 @@ static inline void _fast3tree_check_results_space(const struct tree3_node *n, st
 #undef _fast3tree_mark_node
 #define _fast3tree_mark_node _F3TN(FAST3TREE_PREFIX,_fast3tree_mark_node)
 static inline void _fast3tree_mark_node(struct tree3_node *n, int16_t mark) {
+  if (n->flags == mark) return;
   n->flags = mark;
   if (n->div_dim > -1) {
     _fast3tree_mark_node(n->left, mark);
     _fast3tree_mark_node(n->right, mark);
   }
+  /*  while (n->parent && n != n->parent) {
+    struct tree3_node *o = (n->parent->left == n) ? n->parent->right : n->parent->left;
+    if (o->flags==mark) n->parent->flags = mark;
+    else break;
+    n = n->parent;
+    }*/
 }
 
 #undef _fast3tree_find_sphere

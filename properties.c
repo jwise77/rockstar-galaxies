@@ -341,7 +341,7 @@ void _calc_pseudo_evolution_masses(struct halo *h, int64_t total_p, int64_t boun
  
   //Typical: R_s*4.0; Minimum thresh: R_halo/5.0
   double r_pe_d = h->rs*4.0;
-  double r_pe_b = 0;
+  //double r_pe_b = 0;
   if (r_pe_d < h->r/5.0) r_pe_d = h->r/5.0;
   r_pe_d *= 1e-3;
   for (j=0; j<total_p; j++) {
@@ -353,7 +353,7 @@ void _calc_pseudo_evolution_masses(struct halo *h, int64_t total_p, int64_t boun
     r32 = r32*r32*r32; //r^(3/2)
     if ((double)(mass*mass) / r32 > max_pe_b) {
       max_pe_b = (double)(mass*mass) / r32;
-      r_pe_b = r;
+      //r_pe_b = r;
     }
     
     if (r < r_pe_d) mass_pe_d = mass;

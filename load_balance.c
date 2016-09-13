@@ -1,11 +1,12 @@
 void factor_3(int64_t in, int64_t *factors)
 {
   int64_t i, n=0;
-  for (i = ceil(fabs(cbrt(in))); i>0&&n<2; i--)
+  in = llabs(in);
+  for (i = ceil(cbrt(in)); i>0&&n<2; i--)
     if ((in % i)==0) {
       in /= i;
       factors[n++] = i;
-      i = ceil(sqrt(fabs(in)))+1;
+      i = ceil(sqrt(in))+1;
     }
   factors[2] = in;
 }
