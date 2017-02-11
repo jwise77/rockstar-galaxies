@@ -40,6 +40,9 @@ reg:
 lib:
 	$(CC) $(CFLAGS) $(LDFLAGS) $(CFILES) -o librockstar-galaxies.so $(OFLAGS)
 
+lib_with_hdf5:
+	$(CC) $(CFLAGS) $(LDFLAGS) $(CFILES) -o librockstar-galaxies.so $(OFLAGS)  $(HDF5_FLAGS)
+
 bgc2:
 	$(CC) $(CFLAGS) io/extra_bgc2.c util/redo_bgc2.c $(CFILES) -o util/finish_bgc2  $(OFLAGS)
 	$(CC) $(CFLAGS) io/extra_bgc2.c util/bgc2_to_ascii.c $(CFILES) -o util/bgc2_to_ascii  $(OFLAGS)
