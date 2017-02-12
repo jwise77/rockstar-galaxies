@@ -75,7 +75,7 @@ for my $num ($config->{STARTING_SNAP}..($num_snaps-1)) {
 
 our $box_divisions = int(($size / 2e9)**(1/3));
 $box_divisions = 1 if ($box_divisions < 1);
-our $timesteps = 5
+our $timesteps = 5;
 #our $timesteps = int(@scales / 34);
 our $sub_timesteps = 2*$timesteps;
 $timesteps = 1 if ($timesteps < 1);
@@ -122,21 +122,21 @@ MIN_TIMESTEPS_SUB_MMP_TRACKED = $sub_timesteps
 MAX_PHANTOM_FRACTION = 0.25
 
 MAJOR_MERGER=0.3 #The merger ratio which constitutes a major merger
-MIN_MMP_MASS_RATIO=0.6 #The minimum mass for a progenitor to be considered an MMP
+MIN_MMP_MASS_RATIO=0.5 #The minimum mass for a progenitor to be considered an MMP
 MIN_MMP_VMAX_RATIO=0.7 #The minimum vmax for a progenitor to be considered an MMP
 
-PADDING_TIMESTEPS=1 #Don't kill halos if they have link problems during the last 1 timestep.
+PADDING_TIMESTEPS=0 #Don't kill halos if they have link problems during the last 1 timestep.
 
 LAST_DITCH_SEARCH_LIMIT=1.0 #For connecting halos which have "moved" up 
 			    #to this amount times their virial radius
-LAST_DITCH_VMAX_RATIO_1=1.4  # For connecting halos which have "moved"
+LAST_DITCH_VMAX_RATIO_1=1.1  # For connecting halos which have "moved"
 			     # unphysical amounts
 LAST_DITCH_VMAX_RATIO_2=2.5 
 MAX_PHANTOM=$max_phantoms       # max timesteps to keep phantom halo
 MAX_PHANTOM_SMALL=$max_phantoms_small # max timesteps to keep small phantom halo
 SMALL_PARTICLE_LIMIT=49 # Halos smaller than this size get
 			# kept around for less time.
-TIDAL_FORCE_LIMIT=0.1
+TIDAL_FORCE_LIMIT=0.4
 RECURSION_LIMIT=5
 METRIC_LIMIT=7
 METRIC_BREAK_LIMIT=3.2 #Below which we break a link.
