@@ -366,9 +366,9 @@ void _calc_pseudo_evolution_masses(struct halo *h, int64_t total_p, int64_t boun
 
 void _calc_additional_halo_props(struct halo *h, int64_t total_p, int64_t bound)
 {
-  int64_t j, k, mass_mdelta=0, num_part=0,
+  int64_t j, k, num_part=0,
     mass_vir=0, dens_tot=0, parts_avgd = 0, np_alt = 0;
-  double mass_alt[4] = {0};
+  double mass_mdelta = 0, mass_alt[4] = {0};
   double dens_thresh = particle_thresh_dens[0]*(4.0*M_PI/3.0)*PARTICLE_MASS;
   double d1 = particle_thresh_dens[1]*(4.0*M_PI/3.0)*PARTICLE_MASS;
   double d2 = particle_thresh_dens[2]*(4.0*M_PI/3.0)*PARTICLE_MASS;

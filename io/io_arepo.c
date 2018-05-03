@@ -95,7 +95,7 @@ void arepo_readheader_array(hid_t HDF_GroupID, char *filename, char *objName, hi
 }
 
 void arepo_rescale_particles(struct particle *p, int64_t p_start, int64_t nelems) {
-  double vel_rescale = sqrt(SCALE_NOW);
+  double vel_rescale = sqrt(SCALE_NOW)*AREPO_VELOCITY_CONVERSION;
   if (LIGHTCONE) vel_rescale = 1;
 	
   for (int64_t i=0; i<nelems; i++) {

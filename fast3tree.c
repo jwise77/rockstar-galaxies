@@ -288,7 +288,7 @@ static inline int _fast3tree_box_not_intersect_sphere(const struct tree3_node *n
 /* Fast, accurate. */
 #undef _fast3tree_box_inside_sphere
 #define _fast3tree_box_inside_sphere _F3TN(FAST3TREE_PREFIX,_fast3tree_box_inside_sphere)
-inline int _fast3tree_box_inside_sphere(const struct tree3_node *node, const float c[FAST3TREE_DIM], const float r) {
+int _fast3tree_box_inside_sphere(const struct tree3_node *node, const float c[FAST3TREE_DIM], const float r) {
   int i;
   float dx, dx2, dist = 0, r2 = r*r;
   if (fabs(c[0]-node->min[0]) > r) return 0; //Rapid short-circuit.

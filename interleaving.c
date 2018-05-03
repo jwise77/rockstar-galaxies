@@ -452,7 +452,7 @@ void sort_out_halos_for_chunk(int64_t chunk, float *bounds, struct workunit_info
       else c_num_p += halos[i].num_p;
     }
 
-  if ((c_num_h == num_halos) || (c_num_p > 0.5*num_p)) {
+  if ((c_num_h == num_halos) || (c_num_p > 0.5*num_p) || (chunk == w->chunk)) {
     *c_fofs = fofs;
     *c_ei = extra_info;
     *c_p = p;
