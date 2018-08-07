@@ -90,8 +90,9 @@ void enzo_load_cosmology (char *filename, int32_t *max_static_level)
   // rho_crit * omega_M * (comoving_boxsize / rootgrid_reso)^3
   EnzoMassUnit = Om * CRITICAL_DENSITY * pow(BOX_SIZE, 3) /
     (TopGrid[0] * TopGrid[1] * TopGrid[2]);
-  PARTICLE_MASS = EnzoMassUnit / pow(8.0, *max_static_level);
-
+  PARTICLE_MASS = EnzoMassUnit / pow(8.0, *max_static_level) /
+    pow(13.0, ENZO_PARTICLE_SPLITTING);
+  
   if (RESCALE_PARTICLE_MASS) EnzoMassUnit *= Om / (Om - Ob + 1e-20);
   AVG_PARTICLE_SPACING = cbrt(PARTICLE_MASS / (Om*CRITICAL_DENSITY));
   SCALE_NOW = 1.0 / (1.0 + redshift);    // Time = a
