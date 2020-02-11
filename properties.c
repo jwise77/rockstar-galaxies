@@ -45,12 +45,12 @@ float _estimate_vmax(double *bins, int64_t num_bins, float r_scale) {
   return sqrt(Gc*vmax/SCALE_NOW);
 }
 
-void estimate_vmax(struct halo *h) {
+void estimate_vmax(struct halo *h, int64_t include_children) {
   double bins[VMAX_BINS]={0};
   h->vmax = h->vmax_r = 0;
   if (!(h->child_r>0)) return;
   float r_scale = ((double)VMAX_BINS)/h->child_r;
-  _populate_mass_bins(h,h,bins,VMAX_BINS,r_scale,0);
+  _populate_mass_bins(h,h,bins,VMAX_BINS,r_scale,include_children);
   h->vmax = _estimate_vmax(bins,VMAX_BINS,r_scale);
   h->vmax_r = sqrt(SCALE_NOW) * _estimate_vmax(bins,VMAX_BINS,r_scale)
     * dynamical_time;
@@ -141,7 +141,7 @@ void calc_basic_halo_props(struct halo *h) {
   
   h->r = cbrt(h->m/((4.0*M_PI/3.0)*particle_rvir_dens));
   h->child_r = cbrt(h->num_child_particles/((4.0*M_PI/3.0)*particle_rvir_dens));
-  estimate_vmax(h);
+  estimate_vmax(h, 0);
   if (h->vmax_r) h->r = h->vmax_r;
   h->vrms = sqrt(h->vrms);
 
@@ -341,7 +341,7 @@ void _calc_pseudo_evolution_masses(struct halo *h, int64_t total_p, int64_t boun
  
   //Typical: R_s*4.0; Minimum thresh: R_halo/5.0
   double r_pe_d = h->rs*4.0;
-  double r_pe_b = 0;
+  //double r_pe_b = 0;
   if (r_pe_d < h->r/5.0) r_pe_d = h->r/5.0;
   r_pe_d *= 1e-3;
   for (j=0; j<total_p; j++) {
@@ -353,7 +353,7 @@ void _calc_pseudo_evolution_masses(struct halo *h, int64_t total_p, int64_t boun
     r32 = r32*r32*r32; //r^(3/2)
     if ((double)(mass*mass) / r32 > max_pe_b) {
       max_pe_b = (double)(mass*mass) / r32;
-      r_pe_b = r;
+      //r_pe_b = r;
     }
     
     if (r < r_pe_d) mass_pe_d = mass;
@@ -366,9 +366,9 @@ void _calc_pseudo_evolution_masses(struct halo *h, int64_t total_p, int64_t boun
 
 void _calc_additional_halo_props(struct halo *h, int64_t total_p, int64_t bound)
 {
-  int64_t j, k, mass_mdelta=0, num_part=0,
+  int64_t j, k, num_part=0,
     mass_vir=0, dens_tot=0, parts_avgd = 0, np_alt = 0;
-  double mass_alt[4] = {0};
+  double mass_mdelta = 0, mass_alt[4] = {0};
   double dens_thresh = particle_thresh_dens[0]*(4.0*M_PI/3.0)*PARTICLE_MASS;
   double d1 = particle_thresh_dens[1]*(4.0*M_PI/3.0)*PARTICLE_MASS;
   double d2 = particle_thresh_dens[2]*(4.0*M_PI/3.0)*PARTICLE_MASS;

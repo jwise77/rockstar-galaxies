@@ -147,7 +147,7 @@ void gadget2_extract_header_info(struct gadget_header *header)
 void gadget2_rescale_particles(struct particle *p, int64_t p_start, int64_t nelems) {
   int64_t i, j;
   uint32_t id;
-  double vel_rescale = sqrt(SCALE_NOW);
+  double vel_rescale = sqrt(SCALE_NOW)*GADGET_VELOCITY_CONVERSION;
   if (LIGHTCONE) vel_rescale = 1;
   for (i=0; i<nelems; i++) {
     if (GADGET_ID_BYTES == 4) {

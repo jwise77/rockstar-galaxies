@@ -13,6 +13,11 @@ struct smallfof {
   int64_t root;
 };
 
+extern struct particle *root_p;
+extern int64_t *particle_smallfofs;
+extern struct smallfof *smallfofs;
+#define SMALLFOF_OF(a) particle_smallfofs[(a) - root_p]
+
 void init_particle_smallfofs(int64_t num_p, struct particle *particles);
 void link_particle_to_fof(struct particle *p, int64_t n, struct particle **links);
 void link_fof_to_fof(struct particle *p, int64_t n, struct particle **links);
@@ -24,5 +29,8 @@ void copy_fullfofs(struct fof **base, int64_t *num_f, int64_t *num_alloced_f);
 
 void partition_sort_particles(int64_t min, int64_t max,
 			      struct particle *particles, int64_t *assignments);
+int64_t add_new_smallfof(void);
+void merge_smallfofs(struct smallfof *f1, struct smallfof *f2);
+void _collapse_smallfof(struct smallfof *f);
 
 #endif /* FOF_H */

@@ -57,6 +57,7 @@ sub parsetoc {
 	$mdref =~ tr/ /-/;
 	$mdref =~ tr!(/)!!d;
 	$mdref = "markdown-header-".$mdref;
+	$mdref =~ s/\-+/-/g;
 	$mdref{$ref} = $mdref;
 	if (!($num =~ s/\d+\.//)) {
 	    print "* [$title](#$mdref)\n";

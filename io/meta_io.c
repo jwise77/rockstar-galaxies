@@ -172,6 +172,8 @@ void read_particles(char *filename) {
     exit(1);
   }
 
+  if (NON_COSMOLOGICAL) { SCALE_NOW = 1; }
+
   if (LIMIT_RADIUS) {
     for (i=p_start; i<num_p; i++) {
       for (j=0, ds=0; j<3; j++) { dx = p[i].pos[j]-LIMIT_CENTER[j]; ds+=dx*dx; }
@@ -229,7 +231,9 @@ int _should_print(struct halo *h, float *bounds) {
   if (SUPPRESS_GALAXIES && (h->type != RTYPE_DM)) return 0;
   if ((h->num_p < MIN_HALO_OUTPUT_SIZE) ||
       (h->m * UNBOUND_THRESHOLD >= h->mgrav) ||
-      ((h->mgrav < 1.5*PARTICLE_MASS) && UNBOUND_THRESHOLD > 0)) return 0;
+      ((h->mgrav < 1.5*PARTICLE_MASS) && UNBOUND_THRESHOLD > 0) ||
+      ((MIN_HALO_OUTPUT_MASS>0) && (h->mgrav < MIN_HALO_OUTPUT_MASS)))
+    return 0;
   return 1;
 }
 

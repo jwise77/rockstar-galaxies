@@ -6,6 +6,7 @@
 #define RTYPE_GAS  1
 #define RTYPE_STAR 2
 #define RTYPE_BH   3
+#define NUM_RTYPES 4
 
 struct particle {
   int64_t id;

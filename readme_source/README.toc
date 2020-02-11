@@ -13,9 +13,9 @@
 \contentsline {subsection}{\numberline {2.11}Full Configuration Options}{11}{subsection.2.11}
 \contentsline {subsubsection}{\numberline {2.11.1}Commonly-Used Options}{11}{subsubsection.2.11.1}
 \contentsline {subsubsection}{\numberline {2.11.2}Rarely-used Options}{14}{subsubsection.2.11.2}
-\contentsline {subsection}{\numberline {2.12}Full Example Scripts}{17}{subsection.2.12}
+\contentsline {subsection}{\numberline {2.12}Full Example Scripts}{16}{subsection.2.12}
 \contentsline {section}{\numberline {3}Extending Rockstar}{17}{section.3}
 \contentsline {subsection}{\numberline {3.1}Adding More Configuration Parameters}{17}{subsection.3.1}
 \contentsline {subsection}{\numberline {3.2}Adding More Input Formats}{17}{subsection.3.2}
-\contentsline {subsection}{\numberline {3.3}Adding More Output Formats}{19}{subsection.3.3}
+\contentsline {subsection}{\numberline {3.3}Adding More Output Formats}{18}{subsection.3.3}
 \contentsline {subsection}{\numberline {3.4}Adding More Halo Properties}{19}{subsection.3.4}

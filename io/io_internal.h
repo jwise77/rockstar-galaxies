@@ -2,6 +2,7 @@
 #define _IO_INTERNAL_H_
 #include <inttypes.h>
 #include "../particle.h"
+#include "../halo.h"
 
 #define ROCKSTAR_MAGIC (uint64_t)0xfadedacec0c0d0d0
 #define BINARY_HEADER_SIZE 256

@@ -452,7 +452,7 @@ void sort_out_halos_for_chunk(int64_t chunk, float *bounds, struct workunit_info
       else c_num_p += halos[i].num_p;
     }
 
-  if ((c_num_h == num_halos) || (c_num_p > 0.5*num_p)) {
+  if ((c_num_h == num_halos) || (c_num_p > 0.5*num_p) || (chunk == w->chunk)) {
     *c_fofs = fofs;
     *c_ei = extra_info;
     *c_p = p;
@@ -487,6 +487,13 @@ void sort_out_halos_for_chunk(int64_t chunk, float *bounds, struct workunit_info
     for (; j<num_halos && (halos[j].p_start+halos[j].num_p<=p_end) &&
 	   (halos[j].p_start >= *p_start); j++) {
       if ((halos[j].flags & TAGGED_FLAG)) {
+	if (halos[j].num_p == 0 && halos[j].p_start == p_end) {
+	  int64_t sub_of = extra_info[j].sub_of;
+	  while (sub_of > -1 && extra_info[sub_of].sub_of > -1)
+	    sub_of = extra_info[sub_of].sub_of;
+	  if (sub_of > -1 && halos[sub_of].p_start+halos[sub_of].num_p > p_end)
+	    break;
+	}
 	c_halos[0][cur_h] = halos[j];
 	c_halos[0][cur_h].p_start = *copy_loc;
 	c_ei[0][cur_h] = extra_info[j];

@@ -9,7 +9,8 @@
 
 #define EXTRA_HALO_INFO int64_t descid, np; \
   float alt_m[4], J[3], spin, bullock_spin, Xoff, Voff, \
-    b_to_a, c_to_a, A[3], klypin_rs, kin_to_pot, m_all;
+    b_to_a, c_to_a, A[3], klypin_rs, kin_to_pot, m_all, b500, c500, \
+    A500[3], m_pe_b, m_pe_d, type, sm, gas, bh_mass;
 #include "read_tree.h"
 
 double BOX_SIZE=250;
@@ -32,7 +33,7 @@ void read_hlist(char *filename) {
   char buffer[1024];
 
   SHORT_PARSETYPE;
-  #define NUM_INPUTS 33
+  #define NUM_INPUTS 45
   enum short_parsetype stypes[NUM_INPUTS] = 
     { D64, D64, F, F, F,  //  #id desc_id mvir vmax vrms
       F, F, D64, F,       //  Rvir Rs Np x 
@@ -40,7 +41,9 @@ void read_hlist(char *filename) {
       F, F, F, F, F,      // JX JY JZ Spin rs_klypin
       F, F, F, F, F,      // M_all M1 M2 M3 M4
       F, F, F, F, F,      // Xoff Voff spin_bullock b_to_a c_to_a 
-      F, F, F, F,         // A[x] A[y] A[z] T/|U|
+      F, F, F, F, F,      //A[x] A[y] A[z] b500 c500
+      F, F, F, F, F,      //A500[x] A500[y] A500[z] T/|U| M_pe_b
+      F, F, F, F, F       //M_pe_d Type SM Gas BH_Mass
     };
   enum parsetype types[NUM_INPUTS];
   void *data[NUM_INPUTS] = {&(h.id),
@@ -54,8 +57,9 @@ void read_hlist(char *filename) {
 			    &(h.alt_m[1]), &(h.alt_m[2]), &(h.alt_m[3]),
 			    &(h.Xoff), &(h.Voff), &(h.bullock_spin), 
 			    &(h.b_to_a), &(h.c_to_a), &(h.A[0]), 
-			    &(h.A[1]), &(h.A[2]), &(h.kin_to_pot)};
-  
+    &(h.A[1]), &(h.A[2]), &(h.b500), &(h.c500), &(h.A500[0]), 
+    &(h.A500[1]),  &(h.A500[2]), &(h.kin_to_pot), &(h.m_pe_b),
+    &(h.m_pe_d), &(h.type), &(h.sm), &(h.gas), &(h.bh_mass)};
 
   for (n=0; n<NUM_INPUTS; n++) types[n] = stypes[n];
   input = check_fopen(filename, "r");
@@ -89,13 +93,15 @@ void read_hlist(char *filename) {
 
   for (n=0; n<all_halos.num_halos; n++) {
     struct halo *th = all_halos.halos + n;
-    printf("%"PRId64" %"PRId64" %.3e %.2f %.2f %.3f %.3f %"PRId64" %.5f %.5f %.5f %.2f %.2f %.2f %.3e %.3e %.3e %.5f %.5f %.4e %.4e %.4e %.4e %.4e %.5f %.2f %.5f %.5f %.5f %.5f %.5f %.5f %.4f %"PRId64"\n",
+    printf("%"PRId64" %"PRId64" %.3e %.2f %.2f %.3f %.3f %"PRId64" %.5f %.5f %.5f %.2f %.2f %.2f %.3e %.3e %.3e %.5f %.5f %.4e %.4e %.4e %.4e %.4e %.5f %.2f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.4f %.3e %.3e %.0f %.3e %.3e %.3e %"PRId64"\n",
 	   th->id, th->descid, th->mvir, th->vmax, th->vrms, th->rvir, th->rs,
 	   th->np, th->pos[0], th->pos[1], th->pos[2], th->vel[0], th->vel[1],
 	   th->vel[2], th->J[0], th->J[1], th->J[2], th->spin,
 	   th->klypin_rs, th->m_all, th->alt_m[0], th->alt_m[1], th->alt_m[2],
 	   th->alt_m[3], th->Xoff, th->Voff, th->bullock_spin, th->b_to_a,
-	   th->c_to_a, th->A[0], th->A[1], th->A[2], th->kin_to_pot, th->pid);
+    th->c_to_a, th->A[0], th->A[1], th->A[2], th->b500, th->c500,
+    th->A500[0], th->A500[1], th->A500[2], th->kin_to_pot, 
+    th->m_pe_b, th->m_pe_d, th->type, th->sm, th->gas, th->bh_mass, th->pid);
   }
 }
 

@@ -10,6 +10,9 @@ struct extended_particle {
   int64_t id, hid;
   float pos[6];
   float mass, energy;
+  float softening; /* Per-particle softening, not currently used. */
+  float metallicity; /* Not currently used. */
+  int32_t type;
 };
 
 struct sphere_request {

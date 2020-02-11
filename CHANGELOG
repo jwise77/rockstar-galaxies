@@ -1,3 +1,8 @@
+v0.99.9 RC4:
+*) Sign error for the Hubble term in kinetic energy calculations now fixed (thanks to Alex Ji for finding).  This has almost no effect on halo catalogs because the Hubble term is extremely subdominant on halo scales.
+*) Fix from Andrew Wetzel to improve GIZMO file format compatibility (use FILE_FORMAT=AREPO).
+*) Added GADGET_VELOCITY_CONVERSION and AREPO_VELOCITY_CONVERSION at the suggestion of Javier Redondo; also changed an incorrect int64_t type to a double in the halo mass calculation, which could affect halo mass measurements below 10^3 Msun.
+
 v0.99.9 RC3:
 *) Fix to io/io_tipsy.c to support non-XDR TIPSY files.  (Thanks to Robert Thompson for finding!).
 *) Major fix to shape calculations within R_500c: previous versions were effectively not iterating the shape calculation.

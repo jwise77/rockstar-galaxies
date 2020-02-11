@@ -47,23 +47,23 @@ void free_subtree(void) {
 }
 
 float calc_particle_dist(struct halo *h, struct particle *part) {
-  float dx, dv, r2=0, v2=0;
-  int64_t i,j;
+  float dx, r2=0, v2=0; //,dv;
+  int64_t i; //,j;
   float *vel = h->bulkvel;
   if (h->vrms <= 0 || h->r <= 0 || h->num_p <= 0) return 1e20;
   if (part->type == RTYPE_DM && h->type != RTYPE_DM) return 1e20;
   if (part->type != RTYPE_DM && h->type == RTYPE_DM &&
       h->flags & GALAXY_INELIGIBLE_FLAG) return 1e20;
-  if (h->type == RTYPE_DM) {
-    if (part->type != RTYPE_DM) vel = h->corevel;
+  //if (h->type == RTYPE_DM) {
+    //if (part->type != RTYPE_DM) vel = h->corevel;
     for (i=0; i<3; i++) { dx = h->pos[i]-part->pos[i]; r2+=dx*dx; }
     for (; i<6; i++)  { dx = vel[i-3]-part->pos[i]; v2+=dx*dx; }
     if (h->type == RTYPE_DM && part->type != RTYPE_DM) //Downweight velocity differences for gas + stars
       v2 /= (NON_DM_METRIC_SCALING*NON_DM_METRIC_SCALING);
     return sqrt((r2 / (h->r*h->r)) + v2 / (h->vrms*h->vrms));
-  }
+    //}
 
-  struct extra_halo_info *ei = extra_info + (h-halos);
+    /*  struct extra_halo_info *ei = extra_info + (h-halos);
   for (i=0; i<3; i++) {
     for (dx=0,dv=0,j=0; j<3; j++) {
       dx += ei->x_orth_matrix[i][j]*(part->pos[j]-h->pos[j]);
@@ -74,6 +74,7 @@ float calc_particle_dist(struct halo *h, struct particle *part) {
   }
   v2 /= (NON_DM_METRIC_SCALING*NON_DM_METRIC_SCALING);
   return sqrt(r2 + v2);
+    */
 }
 
 float _calc_halo_dist(struct halo *h1, struct halo *h2) {
@@ -87,7 +88,7 @@ float _calc_halo_dist(struct halo *h1, struct halo *h2) {
 float calc_halo_dist(struct halo *h1, struct halo *h2) {
   if (h2->r > h1->r*0.99999 && 
       !(h1->type == RTYPE_DM && h2->type != RTYPE_DM)) return 1e20;
-  if ((h1->type == RTYPE_DM && h2->type != RTYPE_DM) && (h1->m < h2->m)) return 1e20;
+  if ((h1->type == RTYPE_DM && h2->type != RTYPE_DM) && (h1->vmax < 0.2*h2->vmax)) return 1e20;
   //if (h2->r > h1->r*2.0) return 1e20;
   return (_calc_halo_dist(h1, h2));
 }
