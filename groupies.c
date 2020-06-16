@@ -976,13 +976,13 @@ void norm_sd(struct fof *f, float thresh, double *axis_x, double *axis_v) {
   for (j=0; j<6; j++) for (k=0; k<6; k++) corr[j][k] = 0;
 
   for (i=0; i<f->num_p; i++) {
-    for (j=0; j<6; j++) {
+    for (j=0; j<6; j++)
       f->particles[i].pos[j] -= pos[j];
-      if (dm && f->particles[i].type != RTYPE_DM) continue;
+    if (dm && f->particles[i].type != RTYPE_DM) continue;
+    for (j=0; j<6; j++)
       for (k=j; k<6; k++)
 	corr[j][k]+=f->particles[i].pos[j]*f->particles[i].pos[k]*
 	  f->particles[i].mass;
-    }
   }
 
   for (j=0; j<6; j++)

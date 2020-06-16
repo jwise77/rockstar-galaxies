@@ -169,8 +169,8 @@ void convert_and_sort_core_particles(struct halo *h, struct particle *hp, float 
   float ds, dx;
   for (i=0; i<np; i++) {
     for (j=0,dx=0; j<3; j++) { ds = h->pos[j]-hp[i].pos[j]; dx+= ds*ds; }
-    hp[i].pos[0] = ds;
-    if (max_r && (ds > max_r * max_r)) {
+    hp[i].pos[0] = dx;
+    if (max_r && (dx > max_r * max_r)) {
       struct particle tmp = hp[i];
       hp[i] = hp[np-1];
       hp[np-1] = tmp;
