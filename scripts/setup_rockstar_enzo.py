@@ -8,8 +8,8 @@ except:
 restart_snap = None  # filename of the first dataset in the restart
                      # (None for no restart; True to automatically find the output)
 n_nodes = 1          # Number of compute nodes
-n_procs = 24         # Total number of cores. Must be divisible by 8.
-n_readers = 4        # Number of reader tasks in rockstar
+n_procs = 8         # Total number of cores. Must be divisible by 8.
+n_readers = 2        # Number of reader tasks in rockstar
 particle_split = 0   # Number of particle splitting iterations (in Enzo)
 
 # These filenames usually don't need changing
@@ -58,13 +58,13 @@ if restart_snap == True:
             if last_rfile == None:
                 raise RuntimeError("All datasets analyzed.  Not configuring.  "
                                    "Double-check if you think otherwise.")
-            print "Starting with the first dataset without a rockstar halo file :: %s" \
-                % (last_rfile)
+            print ("Starting with the first dataset without a rockstar halo file :: %s" \
+                % (last_rfile))
             restart_snap = last_rfile
             break
         last_rfile = f
     if last_rfile == None:
-        print "Cannot find any rockstar halo files.  Configuring to analyze everything."
+        print ("Cannot find any rockstar halo files.  Configuring to analyze everything.")
         restart_snap = None
     
 # Find the number of the restart snapshot
