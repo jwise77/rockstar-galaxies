@@ -1,0 +1,60 @@
+#!/bin/bash
+#PBS -N rockstar
+#PBS -l nodes=1:ppn=16
+#PBS -l walltime=12:00:00
+#PBS -l pmem=1900mb
+#PBS -q queue
+#PBS -k oe
+#PBS -j oe
+#PBS -m abe
+##PBS -V
+#PBS -M name@email.com
+cd $PBS_O_WORKDIR
+
+module purge
+module add gcc hdf5
+module add openmpi
+module list
+
+output=hosts
+input=$PBS_NODEFILE
+ppn=$PBS_NUM_PPN
+np=$PBS_NP
+nn=$PBS_NUM_NODES
+
+hosts=`cat $input | uniq`
+[ -f hosts ] && rm hosts
+for h in $hosts; do
+    ns=`grep -c $h $input`
+    ns=`expr $ns / $ppn`
+    echo "$h slots=$ns" >> $output
+done
+
+[ ! -d rockstar_halos ] && mkdir rockstar_halos
+[ -f rockstar_halos/auto-rockstar.cfg ] && rm -v rockstar_halos/auto-rockstar.cfg
+if [ -f rockstar_halos/restart.cfg ]; then
+    cfg=rockstar_halos/restart.cfg
+    for i in `seq 0 100`; do
+	newc=`echo $i | gawk '{printf "client%3.3d.out", $1}'`
+	news=`echo $i | gawk '{printf "server%3.3d.out", $1}'`
+	if [ ! -f $newc ]; then
+	    cp -v client.out $newc
+	    cp -v server.out $news
+	    break
+	fi
+    done
+else
+    cfg=rockstar.cfg
+    [ -f client.out ] && rm -v client*.out
+    [ -f server.out ] && rm -v server*.out
+fi
+
+./rockstar-galaxies -c $cfg >& server.out&
+echo "./rockstar-galaxies -c $cfg >& server.out&"
+while [ ! -e rockstar_halos/auto-rockstar.cfg ]; do
+    sleep 1
+done
+mpirun -n $nn --hostfile $output ./rockstar-galaxies -c rockstar_halos/auto-rockstar.cfg >& client.out
+echo "mpirun -n $nn --hostfile $output ./rockstar-galaxies -c rockstar_halos/auto-rockstar.cfg >& client.out"
+
+exit 0
