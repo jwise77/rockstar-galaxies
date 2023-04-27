@@ -33,7 +33,8 @@ size_t fread_swap(void *ptr, size_t size, size_t nitems, FILE *stream) {
   int8_t *e = ptr;
   n = check_fread(ptr, size, nitems, stream);
   if (!(size % 4))
-    for (i=0; i<(n*size); i+=4) swap_endian_4byte(e+i);  return n;
+    for (i=0; i<(n*size); i+=4) swap_endian_4byte(e+i);
+  return n;
 }
 
 size_t fread_swap8(void *ptr, size_t size, size_t nitems, FILE *stream) {

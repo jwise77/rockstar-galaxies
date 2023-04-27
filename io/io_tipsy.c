@@ -34,7 +34,7 @@ void load_particles_tipsy(char *filename, struct particle **p, int64_t *num_p) {
   struct tipsy_star_particle star;
   struct tipsy_gas_particle gas;
 
-  int i, j;
+  int i, j, result;
   int xdrfmt=1,haveiords=0;
   int *iords=NULL;
   XDR xdrs;
@@ -58,8 +58,10 @@ void load_particles_tipsy(char *filename, struct particle **p, int64_t *num_p) {
   haveiords = load_ids_tipsy(filename,header,&iords);
 
   for(i = 0; i < header.nsph; i++) {
-    if (xdrfmt) assert(tipsy_xdr_gas(&xdrs, &gas) > 0);
-    else fread((char *)&gas,sizeof(struct tipsy_gas_particle), 1, input) ;
+    if (xdrfmt) 
+      assert(tipsy_xdr_gas(&xdrs, &gas) > 0);
+    else
+      result = fread((char *)&gas,sizeof(struct tipsy_gas_particle), 1, input) ;
     for (j=0; j<3; j++) {
       if (haveiords) (*p)[i+(*num_p)].id = iords[i];
       else (*p)[i+(*num_p)].id = i;
@@ -94,8 +96,10 @@ void load_particles_tipsy(char *filename, struct particle **p, int64_t *num_p) {
 
   for(i = 0; i < header.nstar; i++) {
     int ip = i+header.nsph+header.ndark;
-    if (xdrfmt) assert(tipsy_xdr_star(&xdrs, &star) > 0);
-    else fread((char *)&star,sizeof(struct tipsy_star_particle), 1, input);
+    if (xdrfmt)
+      assert(tipsy_xdr_star(&xdrs, &star) > 0);
+    else
+      result = fread((char *)&star,sizeof(struct tipsy_star_particle), 1, input);
     for (j=0; j<3; j++) {
       if (haveiords) (*p)[i+(*num_p)].id = iords[ip];
       else (*p)[i+(*num_p)].id = ip;
