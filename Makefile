@@ -22,7 +22,7 @@ rockstar-galaxies: $(OFILES)
 %.o: %.c
 	$(CC) $(CFLAGS) $(OFLAGS) -c $*.c -o $@
 
-lib:
+lib: all
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OFILES) -o librockstar-galaxies.so $(OFLAGS) $(EXTRA_FLAGS)
 
 #all:
