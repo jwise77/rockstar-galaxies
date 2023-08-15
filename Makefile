@@ -22,6 +22,9 @@ rockstar-galaxies: $(OFILES)
 %.o: %.c
 	$(CC) $(CFLAGS) $(OFLAGS) -c $*.c -o $@
 
+lib:
+	$(CC) $(CFLAGS) $(LDFLAGS) $(OFILES) -o librockstar-galaxies.so $(OFLAGS) $(EXTRA_FLAGS)
+
 #all:
 #	@make reg EXTRA_FLAGS="$(OFLAGS)"
 
