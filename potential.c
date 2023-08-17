@@ -13,13 +13,13 @@
 #define POTENTIAL_HALT_AFTER_BOUND 0
 #endif /* !def POTENTIAL_HALT_AFTER_BOUND */
 
-inline double _distance2(float *p1, float *p2) {
+extern inline double _distance2(float *p1, float *p2) {
   double dx, r2=0;
   for (int64_t k=0; k<3; k++) { dx=p1[k]-p2[k]; r2+=dx*dx; }
   return (r2);
 }
 
-inline double inv_distance(float *p1, float *p2) {
+extern inline double inv_distance(float *p1, float *p2) {
   double r = sqrt(_distance2(p1,p2));
   if (r < FORCE_RES) r = FORCE_RES;
   return (1.0/r);

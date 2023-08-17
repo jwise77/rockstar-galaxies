@@ -127,7 +127,7 @@ static inline void fast3tree_find_sphere(struct fast3tree *t,
 
 #undef fast3tree_find_sphere_skip
 #define fast3tree_find_sphere_skip _F3TN(FAST3TREE_PREFIX,fast3tree_find_sphere_skip)
-inline void fast3tree_find_sphere_skip(struct fast3tree *t,
+extern inline void fast3tree_find_sphere_skip(struct fast3tree *t,
 		  struct fast3tree_results *res, FAST3TREE_TYPE *tp, float r);
 
 #undef fast3tree_find_sphere_periodic
@@ -442,7 +442,7 @@ static inline void fast3tree_find_sphere(struct fast3tree *t, struct fast3tree_r
   _fast3tree_find_sphere(t->root, res, c, r);
 }
 
-inline void fast3tree_find_sphere_skip(struct fast3tree *t, struct fast3tree_results *res, FAST3TREE_TYPE *tp, float r) {
+extern inline void fast3tree_find_sphere_skip(struct fast3tree *t, struct fast3tree_results *res, FAST3TREE_TYPE *tp, float r) {
   res->num_points = 0;
   _fast3tree_find_sphere_skip(t->root, res, tp->pos, r, tp);
 }

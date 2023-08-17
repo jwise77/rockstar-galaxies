@@ -72,12 +72,12 @@ void load_particles_internal(char *filename, struct particle **part, int64_t *nu
 }
 
 
-inline void _clear_buffer(FILE *output) {
+extern inline void _clear_buffer(FILE *output) {
   check_fwrite(output_buffer, buffered, 1, output);
   buffered = 0;
 }
 
-inline void _append_to_buffer(void *src, int64_t size, FILE *output) {
+extern inline void _append_to_buffer(void *src, int64_t size, FILE *output) {
   if (buffered + size > OUTPUT_BUFFER_SIZE) _clear_buffer(output);
   if (size > OUTPUT_BUFFER_SIZE) { check_fwrite(src, size, 1, output); return; }
   memcpy(((char *)output_buffer)+buffered, src, size);
