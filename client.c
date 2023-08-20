@@ -29,7 +29,7 @@
 #include "interleaving.h"
 #include "config.h"
 
-#define CLIENT_DEBUG 0
+#define CLIENT_DEBUG 1
 
 extern struct rsocket *rsockets;
 
@@ -914,7 +914,6 @@ void accept_workloads(char *c_address, char *c_port, int64_t snap, int64_t chunk
       total_h += num_halos;
       total_wku++;
 
-      //      fprintf(stderr, "Workunit done (%"PRId64" halos found; %"PRId64" chunks)!!!\n", num_halos, num_chunks);
       for (i=0; i<num_halos; i++) wrap_into_box(halos[i].pos);
       for (i=0; i<num_chunks; i++) {
 	struct fof *chunk_fofs=NULL;

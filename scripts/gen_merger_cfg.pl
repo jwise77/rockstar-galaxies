@@ -63,7 +63,7 @@ for my $num ($config->{STARTING_SNAP}..($num_snaps-1)) {
 	last unless (/^#/);
     }
     die "Couldn't extract scale factor from file $outbase/out_$num.list!" unless defined $scale;
-    if ((-s "$outbase/out_$num.list") < 20000) {
+    if ((-s "$outbase/out_$num.list") < 2500) {
 	warn "Skipping $outbase/out_$num.list (too few halos).\n";
     }
     else {
@@ -75,11 +75,12 @@ for my $num ($config->{STARTING_SNAP}..($num_snaps-1)) {
 
 our $box_divisions = int(($size / 2e9)**(1/3));
 $box_divisions = 1 if ($box_divisions < 1);
-our $timesteps = int(@scales / 34);
+our $timesteps = 5;
+#our $timesteps = int(@scales / 34);
 our $sub_timesteps = 2*$timesteps;
 $timesteps = 1 if ($timesteps < 1);
 $sub_timesteps = 1 if ($sub_timesteps < 1);
-our $max_phantoms = $timesteps;
+our $max_phantoms = $timesteps/2;
 our $max_phantoms_small = int($timesteps/2);
 $max_phantoms_small = 1 if ($max_phantoms_small < 1);
 our $mass_res_ok = sprintf("%g", $part_mass*1000);
@@ -121,23 +122,24 @@ MIN_TIMESTEPS_SUB_MMP_TRACKED = $sub_timesteps
 MAX_PHANTOM_FRACTION = 0.25
 
 MAJOR_MERGER=0.3 #The merger ratio which constitutes a major merger
-MIN_MMP_MASS_RATIO=0.3 #The minimum mass for a progenitor to be considered an MMP
+MIN_MMP_MASS_RATIO=0.5 #The minimum mass for a progenitor to be considered an MMP
 MIN_MMP_VMAX_RATIO=0.7 #The minimum vmax for a progenitor to be considered an MMP
 
 PADDING_TIMESTEPS=0 #Don't kill halos if they have link problems during the last 1 timestep.
 
 LAST_DITCH_SEARCH_LIMIT=1.0 #For connecting halos which have "moved" up 
 			    #to this amount times their virial radius
-LAST_DITCH_VMAX_RATIO_1=1.4  # For connecting halos which have "moved"
+LAST_DITCH_VMAX_RATIO_1=1.1  # For connecting halos which have "moved"
 			     # unphysical amounts
 LAST_DITCH_VMAX_RATIO_2=2.5 
 MAX_PHANTOM=$max_phantoms       # max timesteps to keep phantom halo
 MAX_PHANTOM_SMALL=$max_phantoms_small # max timesteps to keep small phantom halo
-SMALL_PARTICLE_LIMIT=49 # Halos smaller than this size get
+SMALL_PARTICLE_LIMIT=99 # Halos smaller than this size get
 			# kept around for less time.
-TIDAL_FORCE_LIMIT=0.4
+TIDAL_FORCE_LIMIT=0.1
 RECURSION_LIMIT=5
-METRIC_LIMIT=7
+METRIC_LIMIT=15
+UNPHYSICAL=46
 METRIC_BREAK_LIMIT=3.2 #Below which we break a link.
 MASS_RES_OK=$mass_res_ok #Halo mass above which there are probably
 		 #not resolution issues.

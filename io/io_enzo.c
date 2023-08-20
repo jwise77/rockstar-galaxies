@@ -44,15 +44,15 @@ int sort_enzo_grids(const void *a, const void *b) {
 }
 
 /************************************************************************/
-void enzo_load_cosmology (char *filename)
+void enzo_load_cosmology (char *filename, int32_t *max_static_level)
 {
 
   FILE 	*input;
   char 	 buffer[1024];
   float  redshift, initialRedshift;
-  int64_t 	 dummy;
+  int64_t dummy;
   int64_t    TopGrid[3];
-  int32_t CycleNumber;
+  int32_t CycleNumber, temp_level, region;
   double Time;
   double Ob = 0.06; //Default for ENZO
 
@@ -73,16 +73,26 @@ void enzo_load_cosmology (char *filename)
     sscanf(buffer, "CosmologyInitialRedshift = %f", &initialRedshift);
     sscanf(buffer, "CosmologyCurrentRedshift = %f", &redshift);
     sscanf(buffer, "#DataCGSConversionFactor[3] = %lg %*s", &EnzoVelocityUnit);
+    if (sscanf(buffer, "StaticRefineRegionLevel[%d] = %d", &region, &temp_level) == 2)
+      if (temp_level+1 > *max_static_level)
+	*max_static_level = temp_level+1;
   }  // END line read
 
   fclose(input);
 
+  if (ENZO_ZOOMIN_RESTRICT)
+    PERIODIC = 0;
+  else
+    *max_static_level = 0;
+
   /********** Convert to GADGET units **********/
 
   // rho_crit * omega_M * (comoving_boxsize / rootgrid_reso)^3
-  EnzoMassUnit = PARTICLE_MASS = Om * CRITICAL_DENSITY * pow(BOX_SIZE, 3) /
+  EnzoMassUnit = Om * CRITICAL_DENSITY * pow(BOX_SIZE, 3) /
     (TopGrid[0] * TopGrid[1] * TopGrid[2]);
-
+  PARTICLE_MASS = EnzoMassUnit / pow(8.0, *max_static_level) /
+    pow(13.0, ENZO_PARTICLE_SPLITTING);
+  
   if (RESCALE_PARTICLE_MASS) EnzoMassUnit *= Om / (Om - Ob + 1e-20);
   AVG_PARTICLE_SPACING = cbrt(PARTICLE_MASS / (Om*CRITICAL_DENSITY));
   SCALE_NOW = 1.0 / (1.0 + redshift);    // Time = a
@@ -99,7 +109,8 @@ void enzo_load_cosmology (char *filename)
       EnzoNumFiles++;
   }  // END file line read
   fclose(input);
-  //fprintf(stderr, "Grids = %"PRId64"\n", EnzoNumFiles);
+//  fprintf(stderr, "Grids = %"PRId64", PARTICLE_MASS = %g, max_static_level = %d\n", 
+//	  EnzoNumFiles, PARTICLE_MASS, *max_static_level);
 }
 
 /************************************************************************/
@@ -107,11 +118,13 @@ void enzo_load_cosmology (char *filename)
 void load_particles_enzo(char *filename, struct particle **p, int64_t *num_p) {
 
   char buffer[1024];
-  int64_t i, dim, dummy, grid;
+  int64_t i, dim, dummy, grid, nfine;
+  int32_t max_static_level = 0;
+  struct EnzoGrid *all_grids = NULL;
   struct EnzoGrid *grids = NULL;
   int64_t startIndex, endIndex;
   float GridLeftEdge[3], GridRightEdge[3];
-  float	cellWidth, rootCellWidth=1;
+  float	cellWidth=1, rootCellWidth=1;
 
   int64_t length = strlen(filename);
   int64_t block = 0;
@@ -124,9 +137,9 @@ void load_particles_enzo(char *filename, struct particle **p, int64_t *num_p) {
     block = atol(filename+length+1);
   }
 
-  enzo_load_cosmology(filename);
-  check_realloc_s(grids, sizeof(struct EnzoGrid), EnzoNumFiles);
-  memset(grids, 0, sizeof(struct EnzoGrid)*EnzoNumFiles);
+  enzo_load_cosmology(filename, &max_static_level);
+  check_realloc_s(all_grids, sizeof(struct EnzoGrid), EnzoNumFiles);
+  memset(all_grids, 0, sizeof(struct EnzoGrid)*EnzoNumFiles);
 
   /******** Get particle counts and levels in each grid ********/
   snprintf(buffer, 1024, "%s.hierarchy", filename);
@@ -134,10 +147,11 @@ void load_particles_enzo(char *filename, struct particle **p, int64_t *num_p) {
   //printf("load_particles_enzo: parsing hierarchy file ...\n");
 
   grid = 0;
+  nfine = 0;
   while (fgets(buffer, 1024, hf)) {
     if (sscanf(buffer, "Grid = %"SCNd64, &dummy) == 1) {
       grid = dummy-1;
-      grids[grid].id = dummy;
+      all_grids[grid].id = dummy;
     }
     sscanf(buffer, "GridStartIndex = %"SCNd64, &startIndex);
     sscanf(buffer, "GridEndIndex = %"SCNd64, &endIndex);
@@ -149,18 +163,37 @@ void load_particles_enzo(char *filename, struct particle **p, int64_t *num_p) {
       // Calculate and store grid level
       cellWidth = (GridRightEdge[0] - GridLeftEdge[0]) / (endIndex - startIndex + 1);
       if (grid == 0) rootCellWidth = cellWidth;
-      grids[grid].level = log2(rootCellWidth / cellWidth) + 0.5;
-      grids[grid].num_p = dummy;
+      all_grids[grid].level = log2(rootCellWidth / cellWidth) + 0.5;
+      if (all_grids[grid].level >= max_static_level) nfine++;
+      all_grids[grid].num_p = dummy;
     }
 
     if (!strncmp(buffer, "ParticleFileName = ", 19)) {
-      grids[grid].fname = strdup(buffer + 19);
-      char *end = grids[grid].fname+strlen(grids[grid].fname);
-      if (end > grids[grid].fname && end[-1]=='\n')
+      all_grids[grid].fname = strdup(buffer + 19);
+      char *end = all_grids[grid].fname+strlen(all_grids[grid].fname);
+      if (end > all_grids[grid].fname && end[-1]=='\n')
 	end[-1] = 0;
     }
   }
   fclose(hf);
+
+  // Copy grids with level > max_static_level to the restricted
+  // grid & particle dataset
+  if (max_static_level > 0) {
+    check_realloc_s(grids, sizeof(struct EnzoGrid), nfine);
+    memset(grids, 0, sizeof(struct EnzoGrid)*nfine);
+    for (i = 0, grid = 0; i < EnzoNumFiles; i++)
+      if (all_grids[i].level >= max_static_level) {
+	memcpy(grids+grid, all_grids+i, sizeof(struct EnzoGrid));
+	if (all_grids[i].fname) strcpy(grids[grid].fname, all_grids[i].fname);
+	grid++;
+      } else {
+	if (all_grids[i].fname) free(all_grids[i].fname);
+      }
+    EnzoNumFiles = nfine;
+  } else {
+    grids = all_grids;
+  }
 
   qsort(grids, EnzoNumFiles, sizeof(struct EnzoGrid), sort_enzo_grids);
 
@@ -240,20 +273,21 @@ void load_particles_enzo(char *filename, struct particle **p, int64_t *num_p) {
 
   for (i=0; i<EnzoNumFiles; i++) 
     if (grids[i].fname) free(grids[i].fname);
+  if (grids != all_grids) free(all_grids);
   free(grids);
   //printf("Particles read: %"PRId64"\n", total_read);
 
   if (NUM_BLOCKS > 1) filename[length] = '.';
   snprintf(buffer, 1024, "particles.%"PRId64".ascii", block);
-  FILE *output = check_fopen(buffer, "w");
-  fprintf(output, "#X Y Z VX VY VZ Mass Energy ID Type\n");
-  for (i=0; i<*num_p; i++) {
-    fprintf(output, "%f %f %f %f %f %f %f %f %"PRId64" %d\n",
-	    p[0][i].pos[0], p[0][i].pos[1], p[0][i].pos[2], 
-	    p[0][i].pos[3], p[0][i].pos[4], p[0][i].pos[5], 
-	    p[0][i].mass, p[0][i].energy, p[0][i].id, p[0][i].type); 
-  }
-  fclose(output);
+  //FILE *output = check_fopen(buffer, "w");
+  //fprintf(output, "#X Y Z VX VY VZ Mass Energy ID Type\n");
+  //for (i=0; i<*num_p; i++) {
+  //  fprintf(output, "%f %f %f %f %f %f %f %f %"PRId64" %d\n",
+  //	    p[0][i].pos[0], p[0][i].pos[1], p[0][i].pos[2], 
+  //	    p[0][i].pos[3], p[0][i].pos[4], p[0][i].pos[5], 
+  //	    p[0][i].mass, p[0][i].energy, p[0][i].id, p[0][i].type); 
+  //}
+  //fclose(output);
 }
 
 

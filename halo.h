@@ -1,7 +1,7 @@
 #ifndef HALO_H
 #define HALO_H
 
-#define HALO_FORMAT_REVISION 1
+#define HALO_FORMAT_REVISION 2
 
 #include <stdint.h>
 

@@ -20,7 +20,11 @@ void divide_projection(struct projection *proj, int64_t pieces, float *places)
   assert(pieces > 0);
   for (i=0; i<PROJECTION_SIZE; i++) np += proj->data[i];
   np = (np + pieces - 1)/pieces;  //Round up, if possible
-  places[0] = 0;
+  for (i=0; i<PROJECTION_SIZE&&n<pieces; i++)
+    if (proj->data[i] > 0) {
+      places[0] = BOX_SIZE * ((double)i / (double)PROJECTION_SIZE);
+      break;
+    }
   for (i=0; i<PROJECTION_SIZE&&n<pieces; i++) {
     cp += proj->data[i];
     if (cp > n*np) {
@@ -35,6 +39,12 @@ void divide_projection(struct projection *proj, int64_t pieces, float *places)
     fprintf(stderr, "[Warning] Projection failed; reverting to equal volume divisions.\n");
     for (; n<pieces; n++)
       places[n] = places[n-1] + (BOX_SIZE-places[n-1])/(double)(pieces-n+1);
+  } else {
+    for (i=PROJECTION_SIZE-1; i>places[pieces-1]; i--)
+      if (proj->data[i] > 0) {
+	places[pieces] = BOX_SIZE * ((double)(i+1) / (double)PROJECTION_SIZE);
+	break;
+      }
   }
 } 
 
@@ -191,7 +201,7 @@ void decide_chunks_for_memory_balance() {
     accumulate_projections(pr, proj_start, todo);
     for (i=0; i<todo; i++) {
       divide_projection(pr + proj_start + i, chunks[dir], divisions);
-      divisions[chunks[dir]] = BOX_SIZE;
+      //divisions[chunks[dir]] = BOX_SIZE;
       for (j=0; j<chunks[dir]; j++) {
 	offset = i*chunks[dir]+j;
 	bnds = (dir < 2) ? pr[proj_start+todo+offset].bounds
@@ -208,6 +218,7 @@ void decide_chunks_for_memory_balance() {
     proj_start += todo;
     todo *= chunks[dir];
   }
+
 
   free(divisions);
   free(pr);

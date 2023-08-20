@@ -63,7 +63,11 @@ void get_input_filename(char *buffer, int maxlen, int64_t snap, int64_t block) {
   assert(snap < NUM_SNAPS);
   snprintf(buffer, maxlen, "%s/", INBASE);
   out=strlen(buffer);
-  for (; (i<l)&&(out < (maxlen-1)); i++) {
+  if (snapnames) {
+    snprintf(buffer+out, maxlen-out, "%s", snapnames[snap]);
+    out=strlen(buffer);
+  }
+  for (; (i<l)&&(out < (maxlen-1)&&(!snapnames)); i++) {
     if (FILENAME[i] != '<') { buffer[out]=FILENAME[i]; buffer[out+1]=0; }
     else {
       if (!strncmp(FILENAME+i, "<snap>", 6)) {
@@ -99,9 +103,22 @@ void get_input_filename(char *buffer, int maxlen, int64_t snap, int64_t block) {
 
 void get_output_filename(char *buffer, int maxlen, int64_t snap, int64_t chunk, char *type) {
   int64_t out = 0;
+  int64_t slash_pos;
+  char *slash;
+  char data_dir[1024];
   snprintf(buffer, maxlen, "%s/", OUTBASE);
   out = strlen(buffer);
-  if (snapnames) snprintf(buffer+out, maxlen-out, "halos_%s", snapnames[snap]);
+  if (snapnames) {
+    slash = strchr(snapnames[snap], '/');
+    if (slash != NULL) {
+      slash_pos = (int)(slash - snapnames[snap]);
+      strncpy(data_dir, snapnames[snap], slash_pos);
+      data_dir[slash_pos] =  '\0';
+      snprintf(buffer+out, maxlen-out, "halos_%s", data_dir);
+    } else {
+      snprintf(buffer+out, maxlen-out, "halos_%s", snapnames[snap]);
+    }
+  }
   else snprintf(buffer+out, maxlen-out, "halos_%"PRId64, snap);
   out = strlen(buffer);
   snprintf(buffer+out, maxlen-out, ".%"PRId64".%s", chunk, type);

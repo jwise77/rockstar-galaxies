@@ -4,8 +4,6 @@ project(
   LANGUAGES C
 )
 
-SET( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake" )
-
 # Include the directory itself as a path to include directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -23,16 +21,7 @@ set(CMAKE_C_STANDARD 99)
 find_package(HDF5 REQUIRED COMPONENTS C)
 if (HDF5_FOUND)
   add_compile_definitions(H5_USE_16_API ENABLE_HDF5)
-  include_directories(${HDF5_INCLUDE_DIRS})
-  link_libraries(${HDF5_LIBRARIES})
-endif()
-
-find_package(RPC)
-if (RPC_FOUND)
-  link_libraries(${RPC_LIBRARIES})
-  include_directories(${RPC_INCLUDE_DIRS})
-else(RPC FOUND)
-  message(FATAL_ERROR "TIRPC not found")
+  link_libraries(HDF5::HDF5)
 endif()
 
 
@@ -49,55 +38,55 @@ include_directories("${PROJECT_SOURCE_DIR}/inet")
 project(ROCKSTAR C)
 
 set(SOURCES
-  main.c
-  rockstar.c
-  check_syscalls.c
-  fof.c
-  groupies.c
-  subhalo_metric.c
-  potential.c
-  nfw.c
-  jacobi.c
-  fun_times.c
-  interleaving.c
-  universe_time.c
-  hubble.c
-  integrate.c
-  distance.c
-  config_vars.c
-  config.c
-  bounds.c
-  inthash.c
-  client.c
-  server.c
-  merger.c
-  io/read_config.c
-  inet/socket.c
-  inet/rsocket.c
-  inet/address.c
-  io/meta_io.c
-  io/io_internal.c
-  io/io_ascii.c
-  io/stringparse.c
-  io/io_gadget.c
-  io/io_generic.c
-  io/io_art.c
-  io/io_nchilada.c
-  io/io_tipsy.c
-  io/io_bgc2.c
-  io/io_util.c
-  io/io_arepo.c
-  io/io_hdf5.c
-  io/io_enzo.c
+  main.c 
+  rockstar.c 
+  check_syscalls.c 
+  fof.c 
+  groupies.c 
+  subhalo_metric.c 
+  potential.c 
+  nfw.c 
+  jacobi.c 
+  fun_times.c 
+  interleaving.c 
+  universe_time.c 
+  hubble.c 
+  integrate.c 
+  distance.c 
+  config_vars.c 
+  config.c 
+  bounds.c 
+  inthash.c 
+  client.c 
+  server.c 
+  merger.c 
+  io/read_config.c 
+  inet/socket.c 
+  inet/rsocket.c 
+  inet/address.c 
+  io/meta_io.c 
+  io/io_internal.c 
+  io/io_ascii.c 
+  io/stringparse.c 
+  io/io_gadget.c 
+  io/io_generic.c 
+  io/io_art.c 
+  io/io_nchilada.c 
+  io/io_tipsy.c 
+  io/io_bgc2.c 
+  io/io_util.c 
+  io/io_arepo.c 
+  io/io_hdf5.c 
+  io/io_enzo.c 
 )
 
 # Generate "rockstar-galaxies" executable
 add_executable(rockstar-galaxies ${SOURCES})
-target_link_libraries(rockstar-galaxies m)
+target_link_libraries(rockstar-galaxies tirpc m)
 
 # Generate "librockstar-galaxies.so" shared library
 add_library(lib SHARED ${SOURCES})
-target_link_libraries(lib m)
+target_link_libraries(lib tirpc m)
 set_target_properties(lib PROPERTIES OUTPUT_NAME "rockstar-galaxies")
 
 install(TARGETS rockstar-galaxies lib)
