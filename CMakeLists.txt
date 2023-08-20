@@ -28,9 +28,9 @@ endif()
 
 find_package(RPC)
 if (RPC_FOUND)
-  link_libraries(${TIRPC_LIBRARIES})
-  include_directories(${TIRPC_INCLUDE_DIRS})
-else()
+  link_libraries(${RPC_LIBRARIES})
+  include_directories(${RPC_INCLUDE_DIRS})
+else(RPC FOUND)
   message(FATAL_ERROR "TIRPC not found")
 endif()
 

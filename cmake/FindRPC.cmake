@@ -52,7 +52,7 @@ else (RPC_FOUND)
 
     include(FindPackageHandleStandardArgs)
 
-    find_package_handle_standard_args(RPC
+    find_package_handle_standard_args(TIRPC
        REQUIRED_VARS TIRPC_LIBRARIES TIRPC_INCLUDE_DIRS
        VERSION_VAR TIRPC_VERSION
     )
