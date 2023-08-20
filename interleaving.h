@@ -18,7 +18,7 @@ struct bgroup {
 
 extern int64_t num_new_bp;
 extern struct bgroup *bg;
-struct bgroup *final_bg;
+extern struct bgroup *final_bg;
 extern int64_t num_bg_sets;
 extern int64_t *bg_set_sizes;
 extern int64_t *bg_set_indices;

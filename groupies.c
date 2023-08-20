@@ -923,7 +923,7 @@ int64_t rad_partition(float *rad, int64_t left, int64_t right, int64_t pivot_ind
 #undef SWAP
 }
 
-inline float random_unit(void) {
+extern inline float random_unit(void) {
   return(((float)(rand()%(RAND_MAX))/(float)(RAND_MAX)));
 }
 

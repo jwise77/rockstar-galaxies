@@ -40,7 +40,7 @@ int64_t *ih_keylist(struct inthash *ih) {
 }
 
 
-inline uint64_t _ih_hash_function(struct inthash *ih, uint64_t key) {
+extern inline uint64_t _ih_hash_function(struct inthash *ih, uint64_t key) {
   return ((key*ih->hashnum)>>(64 - ih->hashwidth));
 }
 
@@ -81,7 +81,7 @@ void ih_prealloc(struct inthash *ih, int64_t size) {
   _ih_add_more_buckets(ih, numbits-ih->hashwidth);
 }
 
-inline struct intbucket *_ih_getval(struct inthash *ih, int64_t key) {
+extern inline struct intbucket *_ih_getval(struct inthash *ih, int64_t key) {
   struct intbucket *ib = ih->buckets + _ih_hash_function(ih, key);
   int64_t key2 = key;
   while (ib->key!=IH_INVALID) {
@@ -92,7 +92,7 @@ inline struct intbucket *_ih_getval(struct inthash *ih, int64_t key) {
   return ib;
 }
 
-inline struct intbucket *_ih_getval_deleted(struct inthash *ih, int64_t key) {
+extern inline struct intbucket *_ih_getval_deleted(struct inthash *ih, int64_t key) {
   struct intbucket *ib = ih->buckets + _ih_hash_function(ih, key);
   struct intbucket *ib_del = NULL;
   int64_t key2 = key;

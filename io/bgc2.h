@@ -116,7 +116,7 @@ typedef struct {
 
 /* Get the size of the GROUP DATA (gdata) structure based on FORMAT number */
 #ifdef BGC2_SIZE
-inline size_t
+extern inline size_t
 bgc_sizeof_gdata( const int64_t gdata_format )
 {
     switch ( gdata_format ) {
@@ -149,7 +149,7 @@ enum pdata_format {
 };
 
 #ifdef BGC2_SIZE
-inline int
+extern inline int
 bgc_format_includes_be( int64_t format_id )
 {
     /* this MUST be kept in sync with the above enum defining the formats */
@@ -215,7 +215,7 @@ typedef struct {
 
 /* Get the size of the PARTICLE DATA (pdata) structure based on FORMAT number */
 #ifdef BGC2_SIZE
-inline size_t
+extern inline size_t
 bgc_sizeof_pdata( const int64_t pdata_format )
 {
     switch ( pdata_format ) {

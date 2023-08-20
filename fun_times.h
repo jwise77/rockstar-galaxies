@@ -15,7 +15,7 @@ struct prev_bounds {
   float bounds[6];
 };
 
-struct prev_bounds *p_bounds;
+extern struct prev_bounds *p_bounds;
 extern int64_t prev_snap;
 
 #define MAX_CORE_PARTICLES 10000

@@ -95,7 +95,7 @@ struct fast3tree *ep_tree, *ep_tree2=NULL;
 struct fast3tree_results *ep_res;
 float ep_old_minmax[6];
 
-inline void insertion_sort_extended_particles(int64_t min, int64_t max,
+extern inline void insertion_sort_extended_particles(int64_t min, int64_t max,
                 struct extended_particle **particles, float *radii) {
   int64_t i, pos;
   float r;
